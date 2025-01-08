@@ -60,42 +60,42 @@ Install the 2025 WPILib VS Code environment:
 - [ ] Implement robot alignment to AprilTags.
 - [ ] Add team selection (Red/Blue) for AprilTag sets.
 - [ ] Enable teleautonomous target selection using the Xbox controller:
-- Reef Right
-- Reef Left
-- Processor
-- Intake
+	- Reef Right
+	- Reef Left
+	- Processor
+	- Intake
 - [ ] Define AprilTag locations and sets.
 - [ ] Use AprilTags to autonomously navigate to:
-- Reef Right
-- Reef Left
-- Processor
-- Intake
+	- Reef Right
+	- Reef Left
+	- Processor
+	- Intake
 - [ ] Determine camera configuration:
-- Single static
-- Swivel mounted
-- Turret mounted
-- Dual static
+	- Single static
+	- Swivel mounted
+	- Turret mounted
+	- Dual static
 
 ### Mechanisms
 #### Elevator Subsystem
 - [ ] Implement commands for predefined positions:
-- Stowed
-- Level 1 (L1)
-- Level 2 (L2)
-- Level 3 (L3)
-- Level 4 (L4)
-- Up
-- Down
+	- Stowed
+	- Level 1 (L1)
+	- Level 2 (L2)
+	- Level 3 (L3)
+	- Level 4 (L4)
+	- Up
+	- Down
 
 #### Coral Subsystem
 - [ ] Add commands:
-- Intake
-- Output
+	- Intake
+	- Output
 
 #### Algae Subsystem
 - [ ] Add commands:
-- Intake
-- Output
+	- Intake
+	- Output
 
 ---
 
