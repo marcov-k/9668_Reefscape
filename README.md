@@ -28,23 +28,30 @@ Install the 2025 WPILib VS Code environment:
 ### Setting Up the Project
 
 1. Open 2025 WPILib VS Code.
-2. Clone the GitHub repository using this link:
-[https://github.com/rrmcmurry/9668_Reefscape.git](https://github.com/rrmcmurry/9668_Reefscape.git)
-3. Verify the setup:
+2. Fork a copy of the main repository in GitHub
+   - Go to https://github.com/rrmcmurry/9668_Reefscape
+   - Click on the button that says Fork in the upper right corner
+   - This should make a copy of 9668_Reefscape in your own GitHub account.
+3. Clone your forked GitHub repository locally in VS Code:
+   - On the Welcome Tab under "Start" look for "Clone Git Repository" and select it
+   - https://github.com/YOURUSERNAME/9668_Reefscape.git <- Type this in but use your github username   
+4. Verify the setup:
    - Check for "Build Successful" in the Terminal.
-4. Install the **GitHub Pull Requests** extension in VS Code:
-   - Navigate to the Extensions tab (icon looks like three blocks with a fourth being added).
-   - Search for and install "GitHub Pull Requests."
 5. Navigate to the project files:
    - `9668_REEFSCAPE/src/main/java/frc/robot`
-   - Focus on modifying `Robot.java`, `Constants.java`, and files under `subsystems`.
+   - Focus on modifying `Robot.java`, `Constants.java`, and any files under `subsystems`.
 
-### Workflow Guidelines
+### Workflow 
 
-- **Build & Test:** Ensure the project compiles and builds successfully before pushing changes.
+- **Fetch upstream and merge** 
+  - Fetch updates from the main repository before you begin coding 
+- **Code & Test:** 
+  - Ensure your project compiles and builds successfully before pushing changes
+- **Commit** 
+  - Use the VS Code Source control area to commit and push your changes back to your own GitHub repository.
 - **Pull Requests:**
-- Use GitHub or the GitHub Pull Requests extension in VS Code to create pull requests with clear descriptions of your updates.
-- Always "fetch" updates from the repository and resolve conflicts before starting new work.
+  - Create a Pull Request when you want me to pull your changes into the main repository
+
 
 ---
 
