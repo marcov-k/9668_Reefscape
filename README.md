@@ -31,13 +31,13 @@ The project builds on the [REV MAXSwerve Java Template](https://github.com/REVro
 2. Clone the GitHub repository using this link:
 [https://github.com/rrmcmurry/9668_Reefscape.git](https://github.com/rrmcmurry/9668_Reefscape.git)
 3. Verify the setup:
-- Check for "Build Successful" in the Terminal.
+  - Check for "Build Successful" in the Terminal.
 4. Install the **GitHub Pull Requests** extension in VS Code:
-- Navigate to the Extensions tab (icon looks like three blocks with a fourth being added).
-- Search for and install "GitHub Pull Requests."
+  - Navigate to the Extensions tab (icon looks like three blocks with a fourth being added).
+  - Search for and install "GitHub Pull Requests."
 5. Navigate to the project files:
-- `9668_REEFSCAPE/src/main/java/frc/robot`
-- Focus on modifying `Robot.java`, `Constants.java`, and files under `subsystems`.
+  - `9668_REEFSCAPE/src/main/java/frc/robot`
+  - Focus on modifying `Robot.java`, `Constants.java`, and files under `subsystems`.
 
 ### Workflow Guidelines
 
