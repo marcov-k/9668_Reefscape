@@ -87,10 +87,10 @@ Install the 2025 WPILib VS Code environment:
 	- Level 4 (L4)
 	- Up
 	- Down
-- [ ] Implement a linear magnetic encoder to sense position
+- [ ] Implement a linear magnetic encoder or continuous string potentiometer to sense elevator position for PID control
 
 #### Arm Rotation Subsystem
-- [ ] Thru-Bore encoder for measuring rotation
+- [ ] Thru-Bore encoder for measuring rotation position for PID control
 
 #### Coral Intake Subsystem
 - [ ] Add commands:
