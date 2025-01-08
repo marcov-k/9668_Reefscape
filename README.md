@@ -103,7 +103,6 @@ Install the 2025 WPILib VS Code environment:
 	- Intake
 	- Output
 
----
 
 ### Fine-Tuning
 - [ ] Tune scoring positions for Coral placement.
@@ -111,4 +110,7 @@ Install the 2025 WPILib VS Code environment:
 
 ---
 
-This structure ensures the README is concise, clear, and provides a roadmap for your team. Let me know if you'd like further tweaks!
+Contributers:
+Robby McMurry
+
+
