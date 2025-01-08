@@ -77,6 +77,7 @@ Install the 2025 WPILib VS Code environment:
 	- Dual static
 
 ### Mechanisms
+
 #### Elevator Subsystem
 - [ ] Implement commands for predefined positions:
 	- Stowed
@@ -86,11 +87,16 @@ Install the 2025 WPILib VS Code environment:
 	- Level 4 (L4)
 	- Up
 	- Down
+- [ ] Implement a linear magnetic encoder to sense position
 
-#### Coral Subsystem
+#### Arm Rotation Subsystem
+- [ ] Thru-Bore encoder for measuring rotation
+
+#### Coral Intake Subsystem
 - [ ] Add commands:
 	- Intake
 	- Output
+- [ ] Sensor for confirming intake 
 
 #### Algae Subsystem
 - [ ] Add commands:
