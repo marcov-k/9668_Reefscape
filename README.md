@@ -17,13 +17,13 @@ The project builds on the [REV MAXSwerve Java Template](https://github.com/REVro
 
 ### Prerequisites
 
-- Install the 2025 WPILib VS Code environment:
-  1. Follow the instructions [here](https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-2/wpilib-setup.html).
-  2. Download `WPILib_Windows-2025.1.1.ISO`.
-  3. Right-click the ISO file and select "Mount" as a disk.
-  4. Run `D:\WPILibInstaller.exe`.
-  5. Install for all users and download for this computer only.
-  6. After completing the installation, eject the ISO by right-clicking the `D:` drive and selecting "Eject."
+Install the 2025 WPILib VS Code environment:
+1. Follow the instructions [here](https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-2/wpilib-setup.html).
+2. Download `WPILib_Windows-2025.1.1.ISO`.
+3. Right-click the ISO file and select "Mount" as a disk.
+4. Run `D:\WPILibInstaller.exe`.
+5. Install for all users and download for this computer only.
+6. After completing the installation, eject the ISO by right-clicking the `D:` drive and selecting "Eject."
 
 ### Setting Up the Project
 
