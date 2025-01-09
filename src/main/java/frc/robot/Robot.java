@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 
 
 
@@ -30,6 +31,7 @@ public class Robot extends TimedRobot {
 
   // The robot's subsystems
   private final DriveSubsystem swerveDrive = new DriveSubsystem();
+  private final ElevatorSubsystem elevator = new ElevatorSubsystem();
 
   // The driver's controller
   private final XboxController controller = new XboxController(OIConstants.kDriverControllerPort);
@@ -52,6 +54,7 @@ public class Robot extends TimedRobot {
     networkcontroller_leftJoyY = NetworkController.getDoubleTopic("leftJoyY").subscribe(0.00);
     networkcontroller_rightJoyX = NetworkController.getDoubleTopic("rightJoyX").subscribe(0.00);
     swerveDrive.setPose(0,5,0);
+    
     GameManager = NetworkTableInstance.getDefault().getTable("GameManager");
     nthumandriver = GameManager.getEntry("HumanDriver");
   }
@@ -100,6 +103,18 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     
+    
+    // Bumpers to raise or lower elevator (For now)
+    if (controller.getRightBumperButtonPressed() ) {
+      elevator.raise();
+    }
+    else if (controller.getLeftBumperButtonPressed()) {
+      elevator.lower();      
+    }
+    else {
+      elevator.stop();      
+    }
+
     // X button - sets wheels in an X formation
     if (controller.getXButtonPressed() ) {
       swerveDrive.setX();

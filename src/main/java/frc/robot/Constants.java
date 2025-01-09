@@ -107,6 +107,19 @@ public final class Constants {
     public static final int kTurningMotorCurrentLimit = 20; // amps
   }
 
+  public static final class ElevatorConstants {
+    // SPARK MAX CAN IDs
+    public static final int kElevatorLeftCanId = 10;
+    public static final int kElevatorRightCanId = 11;
+    public static final int kArmRotorCanId = 13;
+    public static final double kElevatorSpeed = 0.05;
+  }    
+
+  public static final class ReefRollerConstants {
+    // SPARK MAX CAN IDs
+    public static final int kIntakeCanId = 12;
+  }    
+
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
     public static final double kDriveDeadband = 0.05;
