@@ -113,6 +113,22 @@ public final class Constants {
     public static final int kElevatorRightCanId = 11;
     public static final int kArmRotorCanId = 13;
     public static final double kElevatorSpeed = 0.05;
+
+    // Height of each level, defined in motor rotations  
+    // NEED TO TEST AND ADJUST THESE VALUES
+    public static final double kLowestLevel = 0.0;
+    public static final double kHighestLevel = 42.0;
+
+    public static final double kCoralLevel1 = 3.0;
+    public static final double kCoralLevel2 = 16.0;
+    public static final double kCoralLevel3 = 29.0;
+    public static final double kCoralLevel4 = 42.0;
+
+    public static final double kIntakeLevel = 20.0;
+
+    public static final double kAlgaeLevel1 = 20.0;
+    public static final double kAlgaeLevel2 = 35.0;
+
   }    
 
   public static final class ReefRollerConstants {

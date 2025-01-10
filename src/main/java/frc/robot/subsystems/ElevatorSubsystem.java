@@ -1,45 +1,49 @@
 package frc.robot.subsystems;
+
+import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Configs;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-
-import frc.robot.Constants.ElevatorConstants;
+import com.revrobotics.spark.SparkClosedLoopController;
 
 public class ElevatorSubsystem extends SubsystemBase{
 
     private final SparkMax m_ElevatorLeftSpark; 
     private final SparkMax m_ElevatorRightSpark; 
-    private final SparkMaxConfig m_ElevatorConfig;
-    private final SparkMaxConfig m_ElevatorFollowerConfig;
-    private final AbsoluteEncoder m_ElevatorEncoder;
+    
+    private SparkClosedLoopController closedLoopController;
+    private RelativeEncoder encoder;
+    
 
     public ElevatorSubsystem(){
 
         // Left Elevator Motor 
-        m_ElevatorConfig = new SparkMaxConfig();
-        m_ElevatorConfig.smartCurrentLimit(50).idleMode(IdleMode.kBrake);        
         m_ElevatorLeftSpark = new SparkMax(ElevatorConstants.kElevatorLeftCanId, MotorType.kBrushless);
-        m_ElevatorLeftSpark.configure(m_ElevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        m_ElevatorLeftSpark.configure(Configs.ElevatorMotor.leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        // Right Elevator Motor 
-        m_ElevatorFollowerConfig = new SparkMaxConfig();
-        m_ElevatorFollowerConfig.apply(m_ElevatorConfig).follow(m_ElevatorLeftSpark).inverted(true);
+        // Right Elevator Motor         
+        Configs.ElevatorMotor.followConfig.follow(m_ElevatorLeftSpark);
         m_ElevatorRightSpark = new SparkMax(ElevatorConstants.kElevatorRightCanId, MotorType.kBrushless);   
-        m_ElevatorRightSpark.configure(m_ElevatorFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        m_ElevatorRightSpark.configure(Configs.ElevatorMotor.followConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        // PID Controller
+        closedLoopController = m_ElevatorLeftSpark.getClosedLoopController();
 
         // Elevator Encoder
-        m_ElevatorEncoder = m_ElevatorLeftSpark.getAbsoluteEncoder();
+        encoder = m_ElevatorLeftSpark.getEncoder();
     }
 
     public double getPosition() {
         // Right now I'm assuming we'll start by using the left SparkMax motor encoder to determine position, but we might want to add something 
         // like a linear magnetic encoder or string potentiometer for more accuracy. 
-        return m_ElevatorEncoder.getPosition();
+        return encoder.getPosition();
     }
 
     public void raise() {
@@ -52,6 +56,41 @@ public class ElevatorSubsystem extends SubsystemBase{
 
     public void lower() {        
         m_ElevatorLeftSpark.set(-ElevatorConstants.kElevatorSpeed);
+    }
+
+    public void goToCoralLevel(int level) {
+
+        if (level == 0) {
+            closedLoopController.setReference(ElevatorConstants.kLowestLevel,  ControlType.kPosition);            
+        }
+        else if (level == 1) {
+            closedLoopController.setReference(ElevatorConstants.kCoralLevel1,  ControlType.kPosition);            
+        }
+        else if (level == 2) {
+            closedLoopController.setReference(ElevatorConstants.kCoralLevel2,  ControlType.kPosition);            
+        }
+        else if (level == 3) {
+            closedLoopController.setReference(ElevatorConstants.kCoralLevel3,  ControlType.kPosition);            
+        }
+        else if (level == 4) {
+            closedLoopController.setReference(ElevatorConstants.kCoralLevel4,  ControlType.kPosition);            
+        }
+    }
+    public void goToAlgaeLevel(int level) {
+
+        if (level == 0) {
+            closedLoopController.setReference(ElevatorConstants.kLowestLevel,  ControlType.kPosition);            
+        }
+        else if (level == 1) {
+            closedLoopController.setReference(ElevatorConstants.kAlgaeLevel1,  ControlType.kPosition);            
+        }
+        else if (level == 2) {
+            closedLoopController.setReference(ElevatorConstants.kAlgaeLevel2,  ControlType.kPosition);            
+        }
+    }
+
+    public void goToIntakeLevel() {
+        closedLoopController.setReference(ElevatorConstants.kIntakeLevel,  ControlType.kPosition);        
     }
 
 }
