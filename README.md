@@ -40,6 +40,9 @@ Install the 2025 WPILib VS Code environment:
 5. Navigate to the project files:
    - `9668_REEFSCAPE/src/main/java/frc/robot`
    - Focus on modifying `Robot.java`, `Constants.java`, and any files under `subsystems`.
+6. Create a branch
+   - If you plan to make changes and want those changes merged back into the original project, I recommend you make a branch with your name on it.
+   - Make changes in that branch
 
 ### Workflow 
 
