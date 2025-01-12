@@ -111,7 +111,8 @@ public final class Constants {
     // SPARK MAX CAN IDs
     public static final int kElevatorLeftCanId = 10;
     public static final int kElevatorRightCanId = 11;
-    public static final int kArmRotorCanId = 13;
+    
+    // Speed
     public static final double kElevatorSpeed = 0.05;
 
     // Height of each level, defined in motor rotations  
@@ -131,10 +132,15 @@ public final class Constants {
 
   }    
 
-  public static final class ReefRollerConstants {
+  public static final class CoralConstants {
     // SPARK MAX CAN IDs
-    public static final int kIntakeCanId = 12;
-  }    
+    public static final int kCoralLeftCanId = 12;
+    public static final int kCoralRightCanId = 13;
+
+    // Speed
+    public static final double kCoralSpeed = 0.05;
+  } 
+
 
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
