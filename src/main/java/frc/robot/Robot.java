@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -41,6 +42,23 @@ public class Robot extends TimedRobot {
   DoubleSubscriber networkcontroller_leftJoyX;
   DoubleSubscriber networkcontroller_leftJoyY;
   DoubleSubscriber networkcontroller_rightJoyX;
+  DoubleSubscriber networkcontroller_rightJoyY;
+  DoubleSubscriber networkcontroller_leftTrigger;
+  DoubleSubscriber networkcontroller_rightTrigger;
+  BooleanSubscriber networkcontroller_aButton;
+  BooleanSubscriber networkcontroller_bButton;
+  BooleanSubscriber networkcontroller_xButton;
+  BooleanSubscriber networkcontroller_yButton;
+  BooleanSubscriber networkcontroller_leftBumper;
+  BooleanSubscriber networkcontroller_rightBumper;
+  BooleanSubscriber networkcontroller_backButton;
+  BooleanSubscriber networkcontroller_startButton;
+  BooleanSubscriber networkcontroller_leftStickButton;
+  BooleanSubscriber networkcontroller_rightStickButton;
+  BooleanSubscriber networkcontroller_dpadUp;
+  BooleanSubscriber networkcontroller_dpadDown;
+  BooleanSubscriber networkcontroller_dpadLeft;
+  BooleanSubscriber networkcontroller_dpadRight;
   NetworkTable GameManager;
   NetworkTableEntry nthumandriver;
   
@@ -53,8 +71,25 @@ public class Robot extends TimedRobot {
     networkcontroller_leftJoyX = NetworkController.getDoubleTopic("leftJoyX").subscribe(0.00);
     networkcontroller_leftJoyY = NetworkController.getDoubleTopic("leftJoyY").subscribe(0.00);
     networkcontroller_rightJoyX = NetworkController.getDoubleTopic("rightJoyX").subscribe(0.00);
+    networkcontroller_rightJoyY = NetworkController.getDoubleTopic("rightJoyY").subscribe(0.00);
+    networkcontroller_leftTrigger = NetworkController.getDoubleTopic("leftTrigger").subscribe(0.00);
+    networkcontroller_rightTrigger = NetworkController.getDoubleTopic("rightTrigger").subscribe(0.00);
+    networkcontroller_aButton = NetworkController.getBooleanTopic("aButton").subscribe(false);
+    networkcontroller_bButton = NetworkController.getBooleanTopic("bButton").subscribe(false);
+    networkcontroller_xButton = NetworkController.getBooleanTopic("xButton").subscribe(false);
+    networkcontroller_yButton = NetworkController.getBooleanTopic("yButton").subscribe(false);
+    networkcontroller_leftBumper = NetworkController.getBooleanTopic("leftBumper").subscribe(false);
+    networkcontroller_rightBumper = NetworkController.getBooleanTopic("rightBumper").subscribe(false);
+    networkcontroller_backButton = NetworkController.getBooleanTopic("backButton").subscribe(false);
+    networkcontroller_startButton = NetworkController.getBooleanTopic("startButton").subscribe(false);
+    networkcontroller_leftStickButton = NetworkController.getBooleanTopic("leftStickButton").subscribe(false);
+    networkcontroller_rightStickButton = NetworkController.getBooleanTopic("rightStickButton").subscribe(false);
+    networkcontroller_dpadUp = NetworkController.getBooleanTopic("dpadUp").subscribe(false);
+    networkcontroller_dpadDown = NetworkController.getBooleanTopic("dpadDown").subscribe(false);
+    networkcontroller_dpadLeft = NetworkController.getBooleanTopic("dpadLeft").subscribe(false);
+    networkcontroller_dpadRight = NetworkController.getBooleanTopic("dpadRight").subscribe(false);
     swerveDrive.setPose(0,5,0);
-    
+    elevator.goToLevel(0);
     GameManager = NetworkTableInstance.getDefault().getTable("GameManager");
     nthumandriver = GameManager.getEntry("HumanDriver");
   }
@@ -76,6 +111,7 @@ public class Robot extends TimedRobot {
     fieldRelative = true;
     rateLimit = false;    
     nthumandriver.setBoolean(false);
+    
   }
 
   @Override

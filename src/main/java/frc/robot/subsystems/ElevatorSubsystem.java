@@ -93,4 +93,8 @@ public class ElevatorSubsystem extends SubsystemBase{
         closedLoopController.setReference(ElevatorConstants.kIntakeLevel,  ControlType.kPosition);        
     }
 
+    public void goToLevel(int level) {             
+        closedLoopController.setReference(ElevatorConstants.levels[level], ControlType.kPosition);
+    }
+
 }

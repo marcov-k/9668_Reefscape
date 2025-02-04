@@ -117,6 +117,9 @@ public final class Constants {
 
     // Height of each level, defined in motor rotations  
     // NEED TO TEST AND ADJUST THESE VALUES
+
+    public static final double[] levels = {0, 3.0, 16, 29, 42};
+
     public static final double kLowestLevel = 0.0;
     public static final double kHighestLevel = 42.0;
 
