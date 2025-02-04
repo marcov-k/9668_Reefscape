@@ -141,10 +141,10 @@ public class Robot extends TimedRobot {
     
     
     // Bumpers to raise or lower elevator (For now)
-    if (controller.getRightBumperButtonPressed() ) {
+    if (controller.getRightBumperButton() ) {
       elevator.raise();
     }
-    else if (controller.getLeftBumperButtonPressed()) {
+    else if (controller.getLeftBumperButton()) {
       elevator.lower();      
     }
     else {

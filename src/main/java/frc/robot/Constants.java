@@ -113,7 +113,7 @@ public final class Constants {
     public static final int kElevatorRightCanId = 11;
     
     // Speed
-    public static final double kElevatorSpeed = 0.05;
+    public static final double kElevatorSpeed = 0.50;
 
     // Height of each level, defined in motor rotations  
     // NEED TO TEST AND ADJUST THESE VALUES
