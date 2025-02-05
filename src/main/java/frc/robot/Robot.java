@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.CoralSubsystem;
 
 
 
@@ -33,6 +34,7 @@ public class Robot extends TimedRobot {
   // The robot's subsystems
   private final DriveSubsystem swerveDrive = new DriveSubsystem();
   private final ElevatorSubsystem elevator = new ElevatorSubsystem();
+  private final CoralSubsystem coral = new CoralSubsystem();
 
   // The driver's controller
   private final XboxController controller = new XboxController(OIConstants.kDriverControllerPort);
@@ -142,13 +144,26 @@ public class Robot extends TimedRobot {
     
     // Bumpers to raise or lower elevator (For now)
     if (controller.getRightBumperButton() ) {
-      elevator.raise();
+      // elevator.raise();
+      coral.intake();
     }
     else if (controller.getLeftBumperButton()) {
-      elevator.lower();      
+      // elevator.lower();
+      coral.outtake();     
     }
     else {
-      elevator.stop();      
+      // elevator.stop();  
+      coral.stop();    
+    }
+
+    if (controller.getYButton()) {
+      coral.wristraise();
+    }
+    else if (controller.getAButton()) {
+      coral.wristlower();
+    }
+    else {
+      coral.wriststop();
     }
 
     // X button - sets wheels in an X formation

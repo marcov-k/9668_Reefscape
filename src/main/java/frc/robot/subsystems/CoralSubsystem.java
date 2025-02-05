@@ -16,25 +16,25 @@ import com.revrobotics.spark.SparkClosedLoopController;
 public class CoralSubsystem extends SubsystemBase{
 
     private final SparkMax m_CoralLeftSpark; 
-    private final SparkMax m_CoralRightSpark; 
+    private final SparkMax m_CoralWristSpark; 
     
-    private SparkClosedLoopController closedLoopController;
+    private SparkClosedLoopController coralClosedLoopController;
     private RelativeEncoder encoder;
     
 
     public CoralSubsystem(){
 
-        // Left Coral Motor 
-        m_CoralLeftSpark = new SparkMax(CoralConstants.kCoralLeftCanId, MotorType.kBrushless);
+        // Coral Motor 
+        m_CoralLeftSpark = new SparkMax(CoralConstants.kCoralCanID, MotorType.kBrushless);
         m_CoralLeftSpark.configure(Configs.CoralMotor.leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        // Right Coral Motor         
-        Configs.CoralMotor.followConfig.follow(m_CoralLeftSpark);
-        m_CoralRightSpark = new SparkMax(CoralConstants.kCoralRightCanId, MotorType.kBrushless);   
-        m_CoralRightSpark.configure(Configs.CoralMotor.followConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        // Wrist Motor         
+        m_CoralWristSpark = new SparkMax(CoralConstants.kWristCanID, MotorType.kBrushless);   
+        m_CoralWristSpark.configure(Configs.WristMotor.leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // PID Controller
-        closedLoopController = m_CoralLeftSpark.getClosedLoopController();
+        coralClosedLoopController = m_CoralLeftSpark.getClosedLoopController();
+    
 
         // Coral Encoder
         encoder = m_CoralLeftSpark.getEncoder();
@@ -58,9 +58,22 @@ public class CoralSubsystem extends SubsystemBase{
         m_CoralLeftSpark.set(-CoralConstants.kCoralSpeed);
     }
 
+    public void wristraise() {
+        m_CoralWristSpark.set(CoralConstants.kCoralSpeed);
+    }
+
+    public void wriststop() {
+        m_CoralWristSpark.stopMotor();
+    }
+
+    public void wristlower() {        
+        m_CoralWristSpark.set(-CoralConstants.kCoralSpeed);
+    }
+
     public void outtakeprecise() {
-        closedLoopController.setReference(2.0,  ControlType.kPosition);            
+        coralClosedLoopController.setReference(2.0,  ControlType.kPosition);            
     }
     
+
 
 }

@@ -107,4 +107,32 @@ public final class Configs {
 
         }
     }
+
+
+    public static final class WristMotor {
+        public static final SparkMaxConfig leadConfig = new SparkMaxConfig();
+        public static final SparkMaxConfig followConfig = new SparkMaxConfig();
+
+        
+
+        static {
+                
+                leadConfig
+                        .smartCurrentLimit(50)
+                        .idleMode(IdleMode.kBrake);        
+            
+                leadConfig.closedLoop
+                        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                        .pid(0.1, 0, 0)
+                        .outputRange(-1,1 );
+            
+                followConfig
+                        .apply(leadConfig)
+                        .inverted(true);
+
+                
+
+
+        }
+    }
 }

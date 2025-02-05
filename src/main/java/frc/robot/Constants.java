@@ -137,8 +137,8 @@ public final class Constants {
 
   public static final class CoralConstants {
     // SPARK MAX CAN IDs
-    public static final int kCoralLeftCanId = 12;
-    public static final int kCoralRightCanId = 13;
+    public static final int kCoralCanID = 12;
+    public static final int kWristCanID = 13;
 
     // Speed
     public static final double kCoralSpeed = 0.05;
