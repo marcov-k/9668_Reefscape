@@ -99,6 +99,8 @@ Install the 2025 WPILib VS Code environment:
 	- Down
 - [ ] Implement a linear magnetic encoder or continuous string potentiometer to sense elevator position for PID control
 
+- [ ] I think we could do a motor encoder because I don't believe they have a limit to how high they could go - luke
+
 #### Arm Rotation Subsystem
 - [ ] Thru-Bore encoder for measuring rotation position for PID control
 
