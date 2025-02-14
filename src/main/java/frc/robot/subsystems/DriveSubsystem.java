@@ -113,7 +113,8 @@ public class DriveSubsystem extends SubsystemBase {
     // Publish position and current heading to NetworkTables
     PoseX.setDouble(forward);
     PoseY.setDouble(side);
-    PoseZ.setDouble(currentPose.getRotation().getDegrees());
+    // PoseZ.setDouble(currentPose.getRotation().getDegrees());
+    PoseZ.setDouble(m_gyro.getAngle());
   }
 
   /**
