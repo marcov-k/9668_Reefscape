@@ -114,7 +114,8 @@ public class DriveSubsystem extends SubsystemBase {
     PoseX.setDouble(forward);
     PoseY.setDouble(side);
     // PoseZ.setDouble(currentPose.getRotation().getDegrees());
-    PoseZ.setDouble(m_gyro.getAngle());
+    double currentangle = m_gyro.getAngle() % 360;
+    PoseZ.setDouble(currentangle);
   }
 
   /**
