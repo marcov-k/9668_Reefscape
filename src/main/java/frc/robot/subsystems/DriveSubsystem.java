@@ -113,7 +113,9 @@ public class DriveSubsystem extends SubsystemBase {
     // Publish position and current heading to NetworkTables
     PoseX.setDouble(forward);
     PoseY.setDouble(side);
-    PoseZ.setDouble(currentPose.getRotation().getDegrees());
+    // PoseZ.setDouble(currentPose.getRotation().getDegrees());
+    double currentangle = m_gyro.getAngle() % 360;
+    PoseZ.setDouble(currentangle);
   }
 
   /**
@@ -229,10 +231,11 @@ public class DriveSubsystem extends SubsystemBase {
     double forwardDelivered = forwardCommanded * DriveConstants.kMaxSpeedMetersPerSecond;
     double strafeDelivered = strafeCommanded * DriveConstants.kMaxSpeedMetersPerSecond;
     double rotDelivered = m_currentRotation * DriveConstants.kMaxAngularSpeed;
+    double currentangle = -m_gyro.getAngle() % 360;
 
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(forwardDelivered, strafeDelivered, rotDelivered, Rotation2d.fromDegrees(-m_gyro.getAngle()))
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(forwardDelivered, strafeDelivered, rotDelivered, Rotation2d.fromDegrees(currentangle))
             : new ChassisSpeeds(forwardDelivered, strafeDelivered, rotDelivered));
 
     SwerveDriveKinematics.desaturateWheelSpeeds(
