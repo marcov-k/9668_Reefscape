@@ -144,16 +144,16 @@ public class Robot extends TimedRobot {
     
     // Bumpers to raise or lower elevator (For now)
     if (controller.getRightBumperButton() ) {
-      // elevator.raise();
-      coral.intake();
+      elevator.raise();
+      //coral.intake();
     }
     else if (controller.getLeftBumperButton()) {
-      // elevator.lower();
-      coral.outtake();     
+      elevator.lower();
+      //coral.outtake();     
     }
     else {
-      // elevator.stop();  
-      coral.stop();    
+      elevator.stop();  
+      // coral.stop();    
     }
 
     if (controller.getYButton()) {
