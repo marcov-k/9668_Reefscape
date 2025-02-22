@@ -124,13 +124,7 @@ public final class Configs {
                 leadConfig.closedLoop
                         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                         .pid(0.1, 0, 0)
-                        .outputRange(-1,1 );
-            
-                followConfig
-                        .apply(leadConfig)
-                        .inverted(true);
-
-                
+                        .outputRange(-1,1 );                
 
 
         }

@@ -142,18 +142,26 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     
     
-    // Bumpers to raise or lower elevator (For now)
     if (controller.getRightBumperButton() ) {
       elevator.raise();
-      //coral.intake();
     }
     else if (controller.getLeftBumperButton()) {
-      elevator.lower();
-      //coral.outtake();     
+      elevator.lower();   
     }
     else {
-      elevator.stop();  
-      // coral.stop();    
+      elevator.stop();    
+    }
+
+
+    
+    if (controller.getXButton()) {
+    coral.intake();
+    }
+    else if (controller.getBButton()) {
+      coral.outtake();     
+    }
+    else {
+      coral.stop();    
     }
 
     if (controller.getYButton()) {
@@ -166,16 +174,6 @@ public class Robot extends TimedRobot {
       coral.wriststop();
     }
 
-    // X button - sets wheels in an X formation
-    if (controller.getXButtonPressed() ) {
-      swerveDrive.setX();
-    }
-
-    // Y button - Resets heading and sets pose to 0,5
-    if (controller.getYButtonPressed() ) {
-      swerveDrive.zeroHeading();      
-      swerveDrive.setPose(0,5,0);
-    }
     
     // Back button - Toggles field relative    
     if (controller.getBackButtonPressed()) {
