@@ -29,9 +29,9 @@ public class ElevatorSubsystem extends SubsystemBase{
         m_ElevatorLeftSpark.configure(Configs.ElevatorMotor.leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // Right Elevator Motor         
-        Configs.ElevatorMotor.followConfig.follow(m_ElevatorLeftSpark);
         m_ElevatorRightSpark = new SparkMax(ElevatorConstants.kElevatorRightCanId, MotorType.kBrushless);   
         m_ElevatorRightSpark.configure(Configs.ElevatorMotor.followConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        Configs.ElevatorMotor.followConfig.follow(m_ElevatorLeftSpark);
 
         // PID Controller
         closedLoopController = m_ElevatorLeftSpark.getClosedLoopController();

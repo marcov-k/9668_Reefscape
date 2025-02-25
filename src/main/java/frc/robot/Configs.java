@@ -71,11 +71,8 @@ public final class Configs {
                         .pid(0.1, 0, 0)
                         .outputRange(-1,1 );
             
-                followConfig
-                        .apply(leadConfig)
-                        .inverted(true);
-
-                
+                followConfig.apply(leadConfig);
+                followConfig.inverted(true);               
 
 
         }
@@ -113,20 +110,12 @@ public final class Configs {
         public static final SparkMaxConfig leadConfig = new SparkMaxConfig();
         public static final SparkMaxConfig followConfig = new SparkMaxConfig();
 
-        
-
-        static {
-                
-                leadConfig
-                        .smartCurrentLimit(50)
-                        .idleMode(IdleMode.kBrake);        
-            
-                leadConfig.closedLoop
-                        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                        .pid(0.1, 0, 0)
-                        .outputRange(-1,1 );                
-
-
+        static {                
+                leadConfig.smartCurrentLimit(50);
+                leadConfig.idleMode(IdleMode.kBrake);                    
+                leadConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+                leadConfig.closedLoop.pid(0.1, 0, 0);
+                leadConfig.closedLoop.outputRange(-1,1 ); 
         }
     }
 }
