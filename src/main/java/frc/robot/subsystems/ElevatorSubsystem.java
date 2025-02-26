@@ -2,7 +2,9 @@ package frc.robot.subsystems;
 
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Configs;
-
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.revrobotics.RelativeEncoder;
@@ -20,7 +22,8 @@ public class ElevatorSubsystem extends SubsystemBase{
     
     private SparkClosedLoopController closedLoopController;
     private RelativeEncoder encoder;
-    
+      // NetworkTable Entries for Position
+    private NetworkTableEntry ElevatorPosition;
 
     public ElevatorSubsystem(){
 
@@ -28,16 +31,22 @@ public class ElevatorSubsystem extends SubsystemBase{
         m_ElevatorLeftSpark = new SparkMax(ElevatorConstants.kElevatorLeftCanId, MotorType.kBrushless);
         m_ElevatorLeftSpark.configure(Configs.ElevatorMotor.leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        // Right Elevator Motor         
+        // Right Elevator Motor  
+        Configs.ElevatorMotor.followConfig.follow(m_ElevatorLeftSpark, true);       
         m_ElevatorRightSpark = new SparkMax(ElevatorConstants.kElevatorRightCanId, MotorType.kBrushless);   
         m_ElevatorRightSpark.configure(Configs.ElevatorMotor.followConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        Configs.ElevatorMotor.followConfig.follow(m_ElevatorLeftSpark);
+        
 
         // PID Controller
         closedLoopController = m_ElevatorLeftSpark.getClosedLoopController();
 
         // Elevator Encoder
         encoder = m_ElevatorLeftSpark.getEncoder();
+
+        // Initialize NetworkTable variables
+        NetworkTable ElevatorTable = NetworkTableInstance.getDefault().getTable("Elevator");
+        ElevatorPosition = ElevatorTable.getEntry("Position");
+
     }
 
     public double getPosition() {
@@ -48,14 +57,16 @@ public class ElevatorSubsystem extends SubsystemBase{
 
     public void raise() {
         m_ElevatorLeftSpark.set(ElevatorConstants.kElevatorSpeed);
+        ElevatorPosition.setDouble(getPosition());
     }
 
     public void stop() {
-        m_ElevatorLeftSpark.stopMotor();
+        m_ElevatorLeftSpark.stopMotor();    
     }
 
     public void lower() {        
-        m_ElevatorLeftSpark.set(-ElevatorConstants.kElevatorSpeed);
+        m_ElevatorLeftSpark.set(-ElevatorConstants.kElevatorSpeed);        
+        ElevatorPosition.setDouble(getPosition());
     }
 
     public void goToCoralLevel(int level) {

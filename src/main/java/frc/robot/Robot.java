@@ -30,6 +30,7 @@ public class Robot extends TimedRobot {
   boolean rateLimit;
   boolean teleautonomous;
   boolean humandriver;
+  Integer elevatorlevel;
 
   // The robot's subsystems
   private final DriveSubsystem swerveDrive = new DriveSubsystem();
@@ -136,44 +137,47 @@ public class Robot extends TimedRobot {
     rateLimit = false;
     teleautonomous = false;
     nthumandriver.setBoolean(true);    
+    elevatorlevel = 0;
   }
 
   @Override
   public void teleopPeriodic() {
     
     
-    if (controller.getRightBumperButton() ) {
-      elevator.raise();
+    if (controller.getAButtonPressed()) {
+      elevatorlevel -= 1;      
     }
-    else if (controller.getLeftBumperButton()) {
-      elevator.lower();   
-    }
-    else {
-      elevator.stop();    
-    }
-
-
     
-    if (controller.getXButton()) {
-    coral.intake();
+    if (controller.getYButtonPressed()) {
+      elevatorlevel += 1;      
     }
-    else if (controller.getBButton()) {
-      coral.outtake();     
-    }
-    else {
-      coral.stop();    
-    }
+    
+    elevatorlevel = Math.abs(elevatorlevel % 5);
 
-    if (controller.getYButton()) {
+    elevator.goToCoralLevel(elevatorlevel);
+    
+    if (controller.getBButton()) {
       coral.wristraise();
     }
-    else if (controller.getAButton()) {
+    else if (controller.getXButton()) {
       coral.wristlower();
     }
     else {
       coral.wriststop();
     }
 
+    if (controller.getRightBumperButton()) {
+      //elevator.raise();
+      coral.intake();
+    }
+    else if (controller.getLeftBumperButton()) {
+      //elevator.lower();
+      coral.outtake();
+    }
+    else {
+      //elevator.stop();
+      coral.stop();
+    }
     
     // Back button - Toggles field relative    
     if (controller.getBackButtonPressed()) {

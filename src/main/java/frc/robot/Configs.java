@@ -62,19 +62,14 @@ public final class Configs {
 
         static {
                 
-                leadConfig
-                        .smartCurrentLimit(50)
-                        .idleMode(IdleMode.kBrake);        
+                leadConfig.smartCurrentLimit(50);
+                leadConfig.idleMode(IdleMode.kBrake);        
             
-                leadConfig.closedLoop
-                        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                        .pid(0.1, 0, 0)
-                        .outputRange(-1,1 );
+                leadConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+                leadConfig.closedLoop.pid(0.6, 0, 0);
+                leadConfig.closedLoop.outputRange(-1,1);
             
                 followConfig.apply(leadConfig);
-                followConfig.inverted(true);               
-
-
         }
     }
 

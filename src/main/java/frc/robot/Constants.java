@@ -113,32 +113,32 @@ public final class Constants {
     public static final int kElevatorRightCanId = 11;
     
     // Speed
-    public static final double kElevatorSpeed = 0.50;
+    public static final double kElevatorSpeed = 1.0;
 
     // Height of each level, defined in motor rotations  
     // NEED TO TEST AND ADJUST THESE VALUES
 
-    public static final double[] levels = {0, 3.0, 16, 29, 42};
+    public static final double[] levels = {0, 19, 100, 180, 260};
 
     public static final double kLowestLevel = 0.0;
-    public static final double kHighestLevel = 42.0;
+    public static final double kHighestLevel = 260.0;
 
-    public static final double kCoralLevel1 = 3.0;
-    public static final double kCoralLevel2 = 16.0;
-    public static final double kCoralLevel3 = 29.0;
-    public static final double kCoralLevel4 = 42.0;
+    public static final double kCoralLevel1 = 3.0 * 260 / 42;
+    public static final double kCoralLevel2 = 16.0 * 260 / 42;
+    public static final double kCoralLevel3 = 29.0 * 260 / 42;
+    public static final double kCoralLevel4 = 42.0 * 260 /42;
 
-    public static final double kIntakeLevel = 20.0;
+    public static final double kIntakeLevel = 20.0 * 260 / 42;
 
-    public static final double kAlgaeLevel1 = 20.0;
-    public static final double kAlgaeLevel2 = 35.0;
+    public static final double kAlgaeLevel1 = 20.0 * 260 / 42;
+    public static final double kAlgaeLevel2 = 35.0 * 260 / 42;
 
   }    
 
   public static final class CoralConstants {
     // SPARK MAX CAN IDs
-    public static final int kCoralCanID = 12;
-    public static final int kWristCanID = 13;
+    public static final int kCoralCanID = 13;
+    public static final int kWristCanID = 12;
 
     // Speed
     public static final double kCoralSpeed = 0.05;
