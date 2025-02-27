@@ -50,8 +50,7 @@ public class Robot extends TimedRobot {
     autoController.Initialize();
     swerveDrive.setPose(0,5,0);
     elevator.goToLevel(0);
-    GameManager = NetworkTableInstance.getDefault().getTable("GameManager");
-    nthumandriver = GameManager.getEntry("HumanDriver");
+    nthumandriver = NetworkTableInstance.getDefault().getTable("GameManager").getEntry("HumanDriver");
   }
 
   @Override
