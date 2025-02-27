@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants.CoralConstants;
-import frc.robot.Configs;
+
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -26,16 +26,15 @@ public class CoralSubsystem extends SubsystemBase{
 
         // Coral Motor 
         m_CoralLeftSpark = new SparkMax(CoralConstants.kCoralCanID, MotorType.kBrushless);
-        m_CoralLeftSpark.configure(Configs.CoralMotor.leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        m_CoralLeftSpark.configure(CoralConstants.coral, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // Wrist Motor         
         m_CoralWristSpark = new SparkMax(CoralConstants.kWristCanID, MotorType.kBrushless);   
-        m_CoralWristSpark.configure(Configs.WristMotor.leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        m_CoralWristSpark.configure(CoralConstants.wrist, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // PID Controller
         coralClosedLoopController = m_CoralLeftSpark.getClosedLoopController();
     
-
         // Coral Encoder
         encoder = m_CoralLeftSpark.getEncoder();
     }

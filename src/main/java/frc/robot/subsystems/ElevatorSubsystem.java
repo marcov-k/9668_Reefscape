@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Configs;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -29,12 +28,12 @@ public class ElevatorSubsystem extends SubsystemBase{
 
         // Left Elevator Motor 
         m_ElevatorLeftSpark = new SparkMax(ElevatorConstants.kElevatorLeftCanId, MotorType.kBrushless);
-        m_ElevatorLeftSpark.configure(Configs.ElevatorMotor.leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        m_ElevatorLeftSpark.configure(ElevatorConstants.leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // Right Elevator Motor  
-        Configs.ElevatorMotor.followConfig.follow(m_ElevatorLeftSpark, true);       
+        ElevatorConstants.followConfig.follow(m_ElevatorLeftSpark, true);       
         m_ElevatorRightSpark = new SparkMax(ElevatorConstants.kElevatorRightCanId, MotorType.kBrushless);   
-        m_ElevatorRightSpark.configure(Configs.ElevatorMotor.followConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        m_ElevatorRightSpark.configure(ElevatorConstants.followConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
 
         // PID Controller
