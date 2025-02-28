@@ -32,7 +32,6 @@ public class NetworkController {
 
 
     public void Initialize() {
-        NetworkTableInstance.getDefault().startServer();
         NetworkController = NetworkTableInstance.getDefault().getTable("NetworkController");
         leftJoyX = NetworkController.getDoubleTopic("leftJoyX").subscribe(0.00);
         leftJoyY = NetworkController.getDoubleTopic("leftJoyY").subscribe(0.00);
