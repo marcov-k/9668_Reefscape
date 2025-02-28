@@ -43,7 +43,7 @@ public class Robot extends TimedRobot {
   NetworkTable GameManager;
   NetworkTableEntry nthumandriver;
   NetworkController autoController;
-
+  
 
   @Override
   public void robotInit() {
