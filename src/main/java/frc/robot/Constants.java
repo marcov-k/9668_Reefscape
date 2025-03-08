@@ -130,6 +130,9 @@ public final class Constants {
     public static final int kElevatorLeftCanId = 10;
     public static final int kElevatorRightCanId = 11;
     
+    // DIO Port for Limit switch
+    public static final int kElevatorLimitSwitchPort = 0;
+
     // Speed
     public static final double kElevatorSpeed = 1.0;
 

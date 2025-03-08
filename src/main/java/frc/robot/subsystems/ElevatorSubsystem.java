@@ -6,6 +6,8 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import edu.wpi.first.wpilibj.DigitalInput;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -17,7 +19,8 @@ import com.revrobotics.spark.SparkClosedLoopController;
 public class ElevatorSubsystem extends SubsystemBase{
 
     private final SparkMax m_ElevatorLeftSpark; 
-    private final SparkMax m_ElevatorRightSpark; 
+    private final SparkMax m_ElevatorRightSpark;
+    private final DigitalInput m_ElevatorLimitSwitch; 
     
     private SparkClosedLoopController closedLoopController;
     private RelativeEncoder encoder;
@@ -35,6 +38,8 @@ public class ElevatorSubsystem extends SubsystemBase{
         m_ElevatorRightSpark = new SparkMax(ElevatorConstants.kElevatorRightCanId, MotorType.kBrushless);   
         m_ElevatorRightSpark.configure(ElevatorConstants.followConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
+        // Elevator Limit Switch
+        m_ElevatorLimitSwitch = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchPort);
 
         // PID Controller
         closedLoopController = m_ElevatorLeftSpark.getClosedLoopController();
@@ -49,12 +54,9 @@ public class ElevatorSubsystem extends SubsystemBase{
     }
 
     public void init() {
-        // Left Elevator Motor         
-        m_ElevatorLeftSpark.configure(ElevatorConstants.leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
         // Right Elevator Motor  
-        ElevatorConstants.followConfig.follow(m_ElevatorLeftSpark, true);         
-        m_ElevatorRightSpark.configure(ElevatorConstants.followConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        ElevatorConstants.followConfig.follow(m_ElevatorLeftSpark, true);
+        m_ElevatorRightSpark.configure(ElevatorConstants.followConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
     public double getPosition() {
@@ -65,7 +67,7 @@ public class ElevatorSubsystem extends SubsystemBase{
 
     public void raise() {
         m_ElevatorLeftSpark.set(ElevatorConstants.kElevatorSpeed);
-        ElevatorPosition.setDouble(getPosition());
+        //ElevatorPosition.setDouble(getPosition());
     }
 
     public void stop() {
@@ -73,8 +75,13 @@ public class ElevatorSubsystem extends SubsystemBase{
     }
 
     public void lower() {        
-        m_ElevatorLeftSpark.set(-ElevatorConstants.kElevatorSpeed);        
-        ElevatorPosition.setDouble(getPosition());
+        if (!m_ElevatorLimitSwitch.get()) {
+            m_ElevatorLeftSpark.set(-ElevatorConstants.kElevatorSpeed);
+        }
+        else {        
+            m_ElevatorLeftSpark.stopMotor();        
+        }
+        //ElevatorPosition.setDouble(getPosition());
     }
 
     public void goToCoralLevel(int level) {

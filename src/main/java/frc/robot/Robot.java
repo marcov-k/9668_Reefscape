@@ -105,16 +105,22 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     
     
-    if (controller.getAButtonPressed()) {
-      elevatorlevel -= 1;    
+    if (controller.getAButton()) {         
       elevator.lower();  
+    } else if (controller.getYButton()) { 
+      elevator.raise();   
+    } else {
+      elevator.stop();
+    }
+    if (controller.getAButtonPressed()) {
+      elevatorlevel -= 1;  
     }
     
     if (controller.getYButtonPressed()) {
-      elevatorlevel += 1;   
-      elevator.raise();   
+      elevatorlevel += 1;  
     }
-    
+
+
     elevatorlevel = Math.abs(elevatorlevel % 5);
     
     // elevator.goToCoralLevel(elevatorlevel);
