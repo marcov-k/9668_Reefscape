@@ -61,7 +61,7 @@ public class AlgaeSubsystem extends SubsystemBase{
     }
 
     public void wristraise() {
-        m_AlgaeWristSpark.set(-AlgaeConstants.kAlgaeSpeed);
+        m_AlgaeWristSpark.set(-AlgaeConstants.kAlgaeWristSpeed);
     }
 
     public void wriststop() {
@@ -69,7 +69,7 @@ public class AlgaeSubsystem extends SubsystemBase{
     }
 
     public void wristlower() {        
-        m_AlgaeWristSpark.set(AlgaeConstants.kAlgaeSpeed);
+        m_AlgaeWristSpark.set(AlgaeConstants.kAlgaeWristSpeed);
     }
 
     public void outtakeprecise() {

@@ -71,7 +71,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {  
     // Initially using field relative with rate limits
     elevator.init();
-    fieldRelative = true;
+    fieldRelative = false;
     rateLimit = false;    
     nthumandriver.setBoolean(false);
     

@@ -134,7 +134,7 @@ public final class Constants {
     public static final int kElevatorLimitSwitchPort = 0;
 
     // Speed
-    public static final double kElevatorSpeed = 1.0;
+    public static final double kElevatorSpeed = 0.5;
 
     // Height of each level, defined in motor rotations  
     // NEED TO TEST AND ADJUST THESE VALUES
@@ -214,7 +214,8 @@ public final class Constants {
         public static final int kAlgaeFollowCanID = 16;
     
         // Speed
-        public static final double kAlgaeSpeed = 0.15;
+        public static final double kAlgaeSpeed = 0.5;
+        public static final double kAlgaeWristSpeed = 0.15;
     
         public static final SparkMaxConfig AlgaeLead = new SparkMaxConfig();
         public static final SparkMaxConfig AlgaeFollow = new SparkMaxConfig();
