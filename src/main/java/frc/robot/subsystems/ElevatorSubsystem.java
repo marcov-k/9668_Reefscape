@@ -38,7 +38,8 @@ public class ElevatorSubsystem extends SubsystemBase{
         m_ElevatorRightSpark = new SparkMax(ElevatorConstants.kElevatorRightCanId, MotorType.kBrushless);   
         m_ElevatorRightSpark.configure(ElevatorConstants.followConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
-        // Elevator Limit Switch
+        // Elevator Limit Switch returns true when when open false when circuit is closed
+        // Wire this as normally closed
         m_ElevatorLimitSwitch = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchPort);
 
         // PID Controller
