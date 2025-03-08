@@ -14,6 +14,7 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
+import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.NetworkController;
 
 
@@ -35,6 +36,7 @@ public class Robot extends TimedRobot {
   private final DriveSubsystem swerveDrive = new DriveSubsystem();
   private final ElevatorSubsystem elevator = new ElevatorSubsystem();
   private final CoralSubsystem coral = new CoralSubsystem();
+  private final AlgaeSubsystem algae = new AlgaeSubsystem();
 
   // The driver's controller
   private final XboxController controller = new XboxController(OIConstants.kDriverControllerPort);
@@ -47,8 +49,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    autoController.Initialize();
-    swerveDrive.setPose(0,5,0);
+    //autoController.Initialize();
+    swerveDrive.setPose(0,0,0);
+    elevator.init();
     elevator.goToLevel(0);
     nthumandriver = NetworkTableInstance.getDefault().getTable("GameManager").getEntry("HumanDriver");
   }
@@ -67,6 +70,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {  
     // Initially using field relative with rate limits
+    elevator.init();
     fieldRelative = true;
     rateLimit = false;    
     nthumandriver.setBoolean(false);
@@ -89,6 +93,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     // Initially using field relative with rate limits
+    elevator.init();
     fieldRelative = true;
     rateLimit = false;
     teleautonomous = false;
@@ -101,16 +106,18 @@ public class Robot extends TimedRobot {
     
     
     if (controller.getAButtonPressed()) {
-      elevatorlevel -= 1;      
+      elevatorlevel -= 1;    
+      elevator.lower();  
     }
     
     if (controller.getYButtonPressed()) {
-      elevatorlevel += 1;      
+      elevatorlevel += 1;   
+      elevator.raise();   
     }
     
     elevatorlevel = Math.abs(elevatorlevel % 5);
-
-    elevator.goToCoralLevel(elevatorlevel);
+    
+    // elevator.goToCoralLevel(elevatorlevel);
     
     if (controller.getBButton()) {
       coral.wristraise();
@@ -122,19 +129,32 @@ public class Robot extends TimedRobot {
       coral.wriststop();
     }
 
+    if (controller.getRightTriggerAxis() > 0.05) {
+      algae.wristraise();
+    }
+    else if (controller.getLeftTriggerAxis() > 0.05) {
+      algae.wristlower();
+    }
+    else {
+      algae.wriststop();
+    }
+
+
+
     if (controller.getRightBumperButton()) {
-      //elevator.raise();
+      algae.intake();
       coral.intake();
+      
     }
     else if (controller.getLeftBumperButton()) {
-      //elevator.lower();
+      algae.outtake();
       coral.outtake();
     }
     else {
-      //elevator.stop();
+      algae.stop();
       coral.stop();
     }
-    
+     
     // Back button - Toggles field relative    
     if (controller.getBackButtonPressed()) {
       fieldRelative = !fieldRelative;      
@@ -142,7 +162,7 @@ public class Robot extends TimedRobot {
     
     // Start button - Toggles autonomous mode
     if (controller.getStartButtonPressed()) {      
-      teleautonomous = !teleautonomous;
+      //teleautonomous = !teleautonomous;
     }
 
     // Get control values from the controller and apply speed limit and deadband
@@ -157,9 +177,9 @@ public class Robot extends TimedRobot {
     // If a human isn't currently driving and we're in teleautonomous mode
     if (teleautonomous && !humandriver) {
       // Use controller values from network tables 
-      strafe = autoController.leftJoyX.get();
-      forward = autoController.leftJoyY.get();
-      rotate = autoController.rightJoyX.get();
+      //strafe = autoController.leftJoyX.get();
+      //forward = autoController.leftJoyY.get();
+      //rotate = autoController.rightJoyX.get();
     }
     
 

@@ -164,6 +164,7 @@ public final class Constants {
             leadConfig.closedLoop.outputRange(-1,1);
         
             followConfig.apply(leadConfig);
+            followConfig.inverted(true);
     }
 
   }    
@@ -182,7 +183,7 @@ public final class Constants {
     static {
             
             coral
-                    .smartCurrentLimit(50)
+                    .smartCurrentLimit(20)
                     .idleMode(IdleMode.kBrake);        
         
             coral.closedLoop
@@ -203,12 +204,52 @@ public final class Constants {
 
   } 
 
+  public static final class AlgaeConstants {
+        // SPARK MAX CAN IDs
+        public static final int kAlgaeWristCanID = 14;
+        public static final int kAlgaeLeadCanID = 15;
+        public static final int kAlgaeFollowCanID = 16;
+    
+        // Speed
+        public static final double kAlgaeSpeed = 0.15;
+    
+        public static final SparkMaxConfig AlgaeLead = new SparkMaxConfig();
+        public static final SparkMaxConfig AlgaeFollow = new SparkMaxConfig();
+        public static final SparkMaxConfig AlgaeWrist = new SparkMaxConfig();
+
+        static {
+                
+                AlgaeLead
+                        .smartCurrentLimit(20)
+                        .idleMode(IdleMode.kBrake);        
+            
+                AlgaeLead.closedLoop
+                        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                        .pid(0.1, 0, 0)
+                        .outputRange(-1,1 );
+
+                AlgaeFollow.apply(AlgaeLead);
+            
+                AlgaeWrist  
+                        .smartCurrentLimit(50)
+                        .idleMode(IdleMode.kBrake);
+    
+                AlgaeWrist.closedLoop 
+                        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                        .pid(0.1, 0, 0)
+                        .outputRange(-1, 1);
+    
+        }
+    
+      } 
+    
+    
 
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
-    public static final double kDriveDeadband = 0.05;
-    public static final double kDriverSpeedLimit = 0.5; // 50% of max speed
-    public static final double kDriverRotationLimit = 0.5; // 30% of max speed
+    public static final double kDriveDeadband = 0.02;
+    public static final double kDriverSpeedLimit = 0.25; // 50% of max speed
+    public static final double kDriverRotationLimit = 0.25; // 30% of max speed
   }
 
   public static final class AutoConstants {

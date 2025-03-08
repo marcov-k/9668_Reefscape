@@ -48,6 +48,15 @@ public class ElevatorSubsystem extends SubsystemBase{
 
     }
 
+    public void init() {
+        // Left Elevator Motor         
+        m_ElevatorLeftSpark.configure(ElevatorConstants.leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        // Right Elevator Motor  
+        ElevatorConstants.followConfig.follow(m_ElevatorLeftSpark, true);         
+        m_ElevatorRightSpark.configure(ElevatorConstants.followConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
     public double getPosition() {
         // Right now I'm assuming we'll start by using the left SparkMax motor encoder to determine position, but we might want to add something 
         // like a linear magnetic encoder or string potentiometer for more accuracy. 
