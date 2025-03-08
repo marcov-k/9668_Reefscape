@@ -160,11 +160,13 @@ public final class Constants {
     static {
             
             leadConfig.smartCurrentLimit(50);
-            leadConfig.idleMode(IdleMode.kBrake);        
+            leadConfig.idleMode(IdleMode.kBrake);  
+            leadConfig.openLoopRampRate(2.0);      
         
             leadConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
             leadConfig.closedLoop.pid(0.6, 0, 0);
             leadConfig.closedLoop.outputRange(-1,1);
+            
         
             followConfig.apply(leadConfig);
             followConfig.inverted(true);
