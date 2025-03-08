@@ -1,11 +1,12 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Configs;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import edu.wpi.first.wpilibj.DigitalInput;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
@@ -18,7 +19,8 @@ import com.revrobotics.spark.SparkClosedLoopController;
 public class ElevatorSubsystem extends SubsystemBase{
 
     private final SparkMax m_ElevatorLeftSpark; 
-    private final SparkMax m_ElevatorRightSpark; 
+    private final SparkMax m_ElevatorRightSpark;
+    private final DigitalInput m_ElevatorLimitSwitch; 
     
     private SparkClosedLoopController closedLoopController;
     private RelativeEncoder encoder;
@@ -29,13 +31,15 @@ public class ElevatorSubsystem extends SubsystemBase{
 
         // Left Elevator Motor 
         m_ElevatorLeftSpark = new SparkMax(ElevatorConstants.kElevatorLeftCanId, MotorType.kBrushless);
-        m_ElevatorLeftSpark.configure(Configs.ElevatorMotor.leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        m_ElevatorLeftSpark.configure(ElevatorConstants.leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // Right Elevator Motor  
-        Configs.ElevatorMotor.followConfig.follow(m_ElevatorLeftSpark, true);       
+        ElevatorConstants.followConfig.follow(m_ElevatorLeftSpark, true);       
         m_ElevatorRightSpark = new SparkMax(ElevatorConstants.kElevatorRightCanId, MotorType.kBrushless);   
-        m_ElevatorRightSpark.configure(Configs.ElevatorMotor.followConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        m_ElevatorRightSpark.configure(ElevatorConstants.followConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
+        // Elevator Limit Switch
+        m_ElevatorLimitSwitch = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchPort);
 
         // PID Controller
         closedLoopController = m_ElevatorLeftSpark.getClosedLoopController();
@@ -49,6 +53,12 @@ public class ElevatorSubsystem extends SubsystemBase{
 
     }
 
+    public void init() {
+        // Right Elevator Motor  
+        ElevatorConstants.followConfig.follow(m_ElevatorLeftSpark, true);
+        m_ElevatorRightSpark.configure(ElevatorConstants.followConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    }
+
     public double getPosition() {
         // Right now I'm assuming we'll start by using the left SparkMax motor encoder to determine position, but we might want to add something 
         // like a linear magnetic encoder or string potentiometer for more accuracy. 
@@ -57,7 +67,7 @@ public class ElevatorSubsystem extends SubsystemBase{
 
     public void raise() {
         m_ElevatorLeftSpark.set(ElevatorConstants.kElevatorSpeed);
-        ElevatorPosition.setDouble(getPosition());
+        //ElevatorPosition.setDouble(getPosition());
     }
 
     public void stop() {
@@ -65,8 +75,13 @@ public class ElevatorSubsystem extends SubsystemBase{
     }
 
     public void lower() {        
-        m_ElevatorLeftSpark.set(-ElevatorConstants.kElevatorSpeed);        
-        ElevatorPosition.setDouble(getPosition());
+        if (!m_ElevatorLimitSwitch.get()) {
+            m_ElevatorLeftSpark.set(-ElevatorConstants.kElevatorSpeed);
+        }
+        else {        
+            m_ElevatorLeftSpark.stopMotor();        
+        }
+        //ElevatorPosition.setDouble(getPosition());
     }
 
     public void goToCoralLevel(int level) {

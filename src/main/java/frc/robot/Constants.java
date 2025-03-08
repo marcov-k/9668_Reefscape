@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -11,20 +15,11 @@ import edu.wpi.first.math.util.Units;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
- * numerical or boolean
- * constants. This class should not be used for any other purpose. All constants
- * should be declared
- * globally (i.e. public static). Do not put anything functional in this class.
- *
- * <p>
- * It is advised to statically import this class (or one of its inner classes)
- * wherever the
- * constants are needed, to reduce verbosity.
+ * numerical or boolean constants
  */
 public final class Constants {
   public static final class DriveConstants {
-    // Driving Parameters - Note that these are not the maximum capable speeds of
-    // the robot, rather the allowed maximum speeds
+    // Driving Parameters 
     public static final double kMaxSpeedMetersPerSecond = 4.8; // Default is 4.8 meters per second     
     public static final double kMaxAngularSpeed = 2 * Math.PI; // Default is 2 PI radians (one full rotation) per second 
 
@@ -34,9 +29,9 @@ public final class Constants {
     
     // Chassis configuration
     public static final double kTrackWidth = Units.inchesToMeters(26.5);
-    // Distance between centers of right and left wheels on robot
     public static final double kWheelBase = Units.inchesToMeters(26.5);
-    // Distance between front and back wheels on robot
+
+    // Relative positions from center
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
         new Translation2d(kWheelBase / 2, kTrackWidth / 2),
         new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
@@ -50,15 +45,16 @@ public final class Constants {
     public static final double kBackRightChassisAngularOffset = Math.PI / 2;
 
     // SPARK MAX CAN IDs
-    public static final int kFrontLeftDrivingCanId = 6;
-    public static final int kRearLeftDrivingCanId = 3;
+    public static final int kFrontLeftDrivingCanId = 1;
     public static final int kFrontRightDrivingCanId = 2;
-    public static final int kRearRightDrivingCanId = 8;
+    public static final int kRearLeftDrivingCanId = 3;    
+    public static final int kRearRightDrivingCanId = 4;
 
-    public static final int kFrontLeftTurningCanId = 7;
-    public static final int kRearLeftTurningCanId = 4;
-    public static final int kFrontRightTurningCanId = 9;
-    public static final int kRearRightTurningCanId = 5;
+    public static final int kFrontLeftTurningCanId = 5;    
+    public static final int kFrontRightTurningCanId = 6;
+    public static final int kRearLeftTurningCanId = 8;
+    public static final int kRearRightTurningCanId = 7;
+    
     
     public static final double kUnitstoFeet = 4.2;
   }
@@ -89,22 +85,44 @@ public final class Constants {
     public static final double kTurningEncoderPositionPIDMinInput = 0; // radians
     public static final double kTurningEncoderPositionPIDMaxInput = kTurningEncoderPositionFactor; // radians
 
-    public static final double kDrivingP = 0.04;
-    public static final double kDrivingI = 0;
-    public static final double kDrivingD = 0;
-    public static final double kDrivingFF = 1 / kDriveWheelFreeSpeedRps;
-    public static final double kDrivingMinOutput = -1;
-    public static final double kDrivingMaxOutput = 1;
+     // Create SparkMax configurations for the Motor controllers
+    public static final SparkMaxConfig drivingConfig = new SparkMaxConfig();
+    public static final SparkMaxConfig turningConfig = new SparkMaxConfig();
 
-    public static final double kTurningP = 1;
-    public static final double kTurningI = 0;
-    public static final double kTurningD = 0;
-    public static final double kTurningFF = 0;
-    public static final double kTurningMinOutput = -1;
-    public static final double kTurningMaxOutput = 1;
+    static {
+        // Use module constants to calculate conversion factors and feed forward gain.
+        double drivingFactor = kWheelDiameterMeters * Math.PI / kDrivingMotorReduction;
+        double turningFactor = 2 * Math.PI;
+        double drivingVelocityFeedForward = 1 / kDriveWheelFreeSpeedRps;
 
-    public static final int kDrivingMotorCurrentLimit = 50; // amps
-    public static final int kTurningMotorCurrentLimit = 20; // amps
+        drivingConfig
+                .idleMode(IdleMode.kCoast)
+                .smartCurrentLimit(50);
+        drivingConfig.encoder
+                .positionConversionFactor(drivingFactor) // meters
+                .velocityConversionFactor(drivingFactor / 60.0); // meters per second
+        drivingConfig.closedLoop
+                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                // These are example gains you may need to tune them for your own robot!
+                .pid(0.04, 0, 0)
+                .velocityFF(drivingVelocityFeedForward)
+                .outputRange(-1, 1);
+
+        turningConfig
+                .idleMode(IdleMode.kBrake)
+                .smartCurrentLimit(20);
+        turningConfig.absoluteEncoder
+                .inverted(true)
+                .positionConversionFactor(turningFactor) // radians
+                .velocityConversionFactor(turningFactor / 60.0); // radians per second
+        turningConfig.closedLoop
+                .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+                // These are example gains you may need to tune them for your own robot!
+                .pid(1, 0, 0)
+                .outputRange(-1, 1)
+                .positionWrappingEnabled(true)
+                .positionWrappingInputRange(0, turningFactor);
+    }
   }
 
   public static final class ElevatorConstants {
@@ -112,6 +130,9 @@ public final class Constants {
     public static final int kElevatorLeftCanId = 10;
     public static final int kElevatorRightCanId = 11;
     
+    // DIO Port for Limit switch
+    public static final int kElevatorLimitSwitchPort = 0;
+
     // Speed
     public static final double kElevatorSpeed = 1.0;
 
@@ -133,6 +154,22 @@ public final class Constants {
     public static final double kAlgaeLevel1 = 20.0 * 260 / 42;
     public static final double kAlgaeLevel2 = 35.0 * 260 / 42;
 
+    public static final SparkMaxConfig leadConfig = new SparkMaxConfig();
+    public static final SparkMaxConfig followConfig = new SparkMaxConfig();
+
+    static {
+            
+            leadConfig.smartCurrentLimit(50);
+            leadConfig.idleMode(IdleMode.kBrake);        
+        
+            leadConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+            leadConfig.closedLoop.pid(0.6, 0, 0);
+            leadConfig.closedLoop.outputRange(-1,1);
+        
+            followConfig.apply(leadConfig);
+            followConfig.inverted(true);
+    }
+
   }    
 
   public static final class CoralConstants {
@@ -142,14 +179,80 @@ public final class Constants {
 
     // Speed
     public static final double kCoralSpeed = 0.05;
+
+    public static final SparkMaxConfig coral = new SparkMaxConfig();
+    public static final SparkMaxConfig wrist = new SparkMaxConfig();
+
+    static {
+            
+            coral
+                    .smartCurrentLimit(20)
+                    .idleMode(IdleMode.kBrake);        
+        
+            coral.closedLoop
+                    .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                    .pid(0.1, 0, 0)
+                    .outputRange(-1,1 );
+        
+            wrist  
+                    .smartCurrentLimit(50)
+                    .idleMode(IdleMode.kBrake);
+
+            wrist.closedLoop 
+                    .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                    .pid(0.1, 0, 0)
+                    .outputRange(-1, 1);
+
+    }
+
   } 
 
+  public static final class AlgaeConstants {
+        // SPARK MAX CAN IDs
+        public static final int kAlgaeWristCanID = 14;
+        public static final int kAlgaeLeadCanID = 15;
+        public static final int kAlgaeFollowCanID = 16;
+    
+        // Speed
+        public static final double kAlgaeSpeed = 0.15;
+    
+        public static final SparkMaxConfig AlgaeLead = new SparkMaxConfig();
+        public static final SparkMaxConfig AlgaeFollow = new SparkMaxConfig();
+        public static final SparkMaxConfig AlgaeWrist = new SparkMaxConfig();
+
+        static {
+                
+                AlgaeLead
+                        .smartCurrentLimit(20)
+                        .idleMode(IdleMode.kBrake);        
+            
+                AlgaeLead.closedLoop
+                        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                        .pid(0.1, 0, 0)
+                        .outputRange(-1,1 );
+
+                AlgaeFollow.apply(AlgaeLead);
+            
+                AlgaeWrist  
+                        .smartCurrentLimit(50)
+                        .idleMode(IdleMode.kBrake);
+    
+                AlgaeWrist.closedLoop 
+                        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                        .pid(0.1, 0, 0)
+                        .outputRange(-1, 1);
+    
+        }
+    
+      } 
+    
+    
 
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
-    public static final double kDriveDeadband = 0.05;
-    public static final double kDriverSpeedLimit = 0.5; // 50% of max speed
-    public static final double kDriverRotationLimit = 0.5; // 30% of max speed
+    public static final double kDriveDeadband = 0.02;
+    public static final double kDriverSpeedLimit = 0.25; // 50% of max speed
+    public static final double kDriverRotationLimit = 0.25; // 30% of max speed
   }
 
   public static final class AutoConstants {
