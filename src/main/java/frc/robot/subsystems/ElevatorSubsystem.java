@@ -25,7 +25,7 @@ public class ElevatorSubsystem extends SubsystemBase{
     private SparkClosedLoopController closedLoopController;
     private RelativeEncoder encoder;
       // NetworkTable Entries for Position
-    private NetworkTableEntry ElevatorPosition;
+    private NetworkTableEntry NTElevatorPosition;
 
     public ElevatorSubsystem(){
 
@@ -49,7 +49,7 @@ public class ElevatorSubsystem extends SubsystemBase{
 
         // Initialize NetworkTable variables
         NetworkTable ElevatorTable = NetworkTableInstance.getDefault().getTable("Elevator");
-        ElevatorPosition = ElevatorTable.getEntry("Position");
+        NTElevatorPosition = ElevatorTable.getEntry("Position");
 
     }
 
@@ -67,7 +67,7 @@ public class ElevatorSubsystem extends SubsystemBase{
 
     public void raise() {
         m_ElevatorLeftSpark.set(ElevatorConstants.kElevatorSpeed);
-        //ElevatorPosition.setDouble(getPosition());
+        NTElevatorPosition.setDouble(getPosition());
     }
 
     public void stop() {
@@ -81,7 +81,7 @@ public class ElevatorSubsystem extends SubsystemBase{
         else {        
             m_ElevatorLeftSpark.stopMotor();        
         }
-        //ElevatorPosition.setDouble(getPosition());
+        NTElevatorPosition.setDouble(getPosition());
     }
 
     public void goToCoralLevel(int level) {
