@@ -161,14 +161,14 @@ public class Robot extends TimedRobot {
       coral.stop();
     }
      
-    // Back button - Toggles field relative    
+    // Back button - Toggles autonomous mode     
     if (controller.getBackButtonPressed()) {
-      fieldRelative = !fieldRelative;      
+      //teleautonomous = !teleautonomous;      
     }
     
-    // Start button - Toggles autonomous mode
-    if (controller.getStartButtonPressed()) {      
-      //teleautonomous = !teleautonomous;
+    // Start button - Toggles field relative
+    if (controller.getStartButtonPressed()) {            
+      fieldRelative = !fieldRelative;
     }
 
     // Get control values from the controller and apply speed limit and deadband
