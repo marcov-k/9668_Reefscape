@@ -104,7 +104,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     
-    
+    // A and Y Button - control elevator
     if (controller.getAButton()) {         
       elevator.lower();  
     } else if (controller.getYButton()) { 
@@ -112,20 +112,9 @@ public class Robot extends TimedRobot {
     } else {
       elevator.stop();
     }
-    /* 
-    if (controller.getAButtonPressed()) {
-      elevatorlevel -= 1;  
-    }
-    
-    if (controller.getYButtonPressed()) {
-      elevatorlevel += 1;  
-    }
-    */
 
-    elevatorlevel = Math.abs(elevatorlevel % 5);
     
-    // elevator.goToCoralLevel(elevatorlevel);
-    
+    // B and X Button - control coral wrist
     if (controller.getBButton()) {
       coral.wristraise();
     }
@@ -136,30 +125,30 @@ public class Robot extends TimedRobot {
       coral.wriststop();
     }
 
-    if (controller.getRightTriggerAxis() > 0.05) {
-      algae.wristraise();
-    }
-    else if (controller.getLeftTriggerAxis() > 0.05) {
-      algae.wristlower();
-    }
-    else {
-      algae.wriststop();
-    }
-
-
-
-    if (controller.getRightBumperButton()) {
+    // Triggers - control intake and outtake
+    if (controller.getRightTriggerAxis() > 0.05) {  
       algae.intake();
       coral.intake();
-      
     }
-    else if (controller.getLeftBumperButton()) {
+    else if (controller.getLeftTriggerAxis() > 0.05) {
       algae.outtake();
       coral.outtake();
     }
     else {
       algae.stop();
       coral.stop();
+    }
+
+
+    // Bumpers - control Algae Wrist
+    if (controller.getRightBumperButton()) {
+      algae.wristraise();      
+    }
+    else if (controller.getLeftBumperButton()) {
+      algae.wristlower();
+    }
+    else {
+      algae.wriststop();
     }
      
     // Back button - Toggles autonomous mode     

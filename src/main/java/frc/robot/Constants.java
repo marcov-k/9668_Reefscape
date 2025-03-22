@@ -46,22 +46,15 @@ public final class Constants {
     public static final double kBackRightChassisAngularOffset = Math.PI / 2;
 
     // SPARK MAX CAN IDs
-<<<<<<< Updated upstream
-    public static final int kFrontLeftDrivingCanId = 3;
-    public static final int kFrontRightDrivingCanId = 4;
-    public static final int kRearLeftDrivingCanId = 1;    
-    public static final int kRearRightDrivingCanId = 2;
-=======
     public static final int kFrontLeftDrivingCanId = 1;
     public static final int kFrontRightDrivingCanId = 2;
     public static final int kRearLeftDrivingCanId = 4;    
     public static final int kRearRightDrivingCanId = 3;
->>>>>>> Stashed changes
 
-    public static final int kFrontLeftTurningCanId = 8;    
-    public static final int kFrontRightTurningCanId = 7;
-    public static final int kRearLeftTurningCanId = 5;
-    public static final int kRearRightTurningCanId = 6;
+    public static final int kFrontLeftTurningCanId = 5;    
+    public static final int kFrontRightTurningCanId = 6;
+    public static final int kRearLeftTurningCanId = 8;
+    public static final int kRearRightTurningCanId = 7;
     
     
     public static final double kUnitstoFeet = 4.2;
@@ -228,7 +221,7 @@ public final class Constants {
     
         // Speed
         public static final double kAlgaeSpeed = 0.5;
-        public static final double kAlgaeWristSpeed = 0.15;
+        public static final double kAlgaeWristSpeed = 0.2;
     
         public static final SparkMaxConfig AlgaeLead = new SparkMaxConfig();
         public static final SparkMaxConfig AlgaeFollow = new SparkMaxConfig();

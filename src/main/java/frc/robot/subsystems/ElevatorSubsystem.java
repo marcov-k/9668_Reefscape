@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -18,8 +19,8 @@ import com.revrobotics.spark.SparkClosedLoopController;
 
 public class ElevatorSubsystem extends SubsystemBase{
 
-    private final SparkMax m_ElevatorLeftSpark; 
-    private final SparkMax m_ElevatorRightSpark;
+    private final SparkFlex m_ElevatorLeftSpark; 
+    private final SparkFlex m_ElevatorRightSpark;
     private final DigitalInput m_ElevatorLimitSwitch; 
     
     private SparkClosedLoopController closedLoopController;
@@ -30,12 +31,12 @@ public class ElevatorSubsystem extends SubsystemBase{
     public ElevatorSubsystem(){
 
         // Left Elevator Motor 
-        m_ElevatorLeftSpark = new SparkMax(ElevatorConstants.kElevatorLeftCanId, MotorType.kBrushless);
+        m_ElevatorLeftSpark = new SparkFlex(ElevatorConstants.kElevatorLeftCanId, MotorType.kBrushless);
         m_ElevatorLeftSpark.configure(ElevatorConstants.leadConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // Right Elevator Motor  
         ElevatorConstants.followConfig.follow(m_ElevatorLeftSpark, true);       
-        m_ElevatorRightSpark = new SparkMax(ElevatorConstants.kElevatorRightCanId, MotorType.kBrushless);   
+        m_ElevatorRightSpark = new SparkFlex(ElevatorConstants.kElevatorRightCanId, MotorType.kBrushless);   
         m_ElevatorRightSpark.configure(ElevatorConstants.followConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
         // Elevator Limit Switch returns true when when open false when circuit is closed
