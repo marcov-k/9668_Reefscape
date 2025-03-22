@@ -81,6 +81,7 @@ public class ElevatorSubsystem extends SubsystemBase{
         }
         else {        
             m_ElevatorLeftSpark.stopMotor();        
+            
         }
         NTElevatorPosition.setDouble(getPosition());
     }

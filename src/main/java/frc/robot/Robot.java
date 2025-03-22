@@ -94,7 +94,7 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     // Initially using field relative with rate limits
     elevator.init();
-    fieldRelative = true;
+    fieldRelative = false;
     rateLimit = false;
     teleautonomous = false;
     nthumandriver.setBoolean(true);    
@@ -112,6 +112,7 @@ public class Robot extends TimedRobot {
     } else {
       elevator.stop();
     }
+    /* 
     if (controller.getAButtonPressed()) {
       elevatorlevel -= 1;  
     }
@@ -119,7 +120,7 @@ public class Robot extends TimedRobot {
     if (controller.getYButtonPressed()) {
       elevatorlevel += 1;  
     }
-
+    */
 
     elevatorlevel = Math.abs(elevatorlevel % 5);
     

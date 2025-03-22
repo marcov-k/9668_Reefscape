@@ -58,7 +58,7 @@ public class CoralSubsystem extends SubsystemBase{
     }
 
     public void wristraise() {
-        m_CoralWristSpark.set(-CoralConstants.kCoralSpeed);
+        m_CoralWristSpark.set(-CoralConstants.kCoralWristSpeed);
     }
 
     public void wriststop() {
@@ -66,7 +66,7 @@ public class CoralSubsystem extends SubsystemBase{
     }
 
     public void wristlower() {        
-        m_CoralWristSpark.set(CoralConstants.kCoralSpeed);
+        m_CoralWristSpark.set(CoralConstants.kCoralWristSpeed);
     }
 
     public void outtakeprecise() {
