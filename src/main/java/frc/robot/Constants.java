@@ -7,6 +7,7 @@ package frc.robot;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -45,10 +46,17 @@ public final class Constants {
     public static final double kBackRightChassisAngularOffset = Math.PI / 2;
 
     // SPARK MAX CAN IDs
+<<<<<<< Updated upstream
     public static final int kFrontLeftDrivingCanId = 3;
     public static final int kFrontRightDrivingCanId = 4;
     public static final int kRearLeftDrivingCanId = 1;    
     public static final int kRearRightDrivingCanId = 2;
+=======
+    public static final int kFrontLeftDrivingCanId = 1;
+    public static final int kFrontRightDrivingCanId = 2;
+    public static final int kRearLeftDrivingCanId = 4;    
+    public static final int kRearRightDrivingCanId = 3;
+>>>>>>> Stashed changes
 
     public static final int kFrontLeftTurningCanId = 8;    
     public static final int kFrontRightTurningCanId = 7;
@@ -127,14 +135,14 @@ public final class Constants {
 
   public static final class ElevatorConstants {
     // SPARK MAX CAN IDs
-    public static final int kElevatorLeftCanId = 10;
-    public static final int kElevatorRightCanId = 11;
+    public static final int kElevatorLeftCanId = 9;
+    public static final int kElevatorRightCanId = 10;
     
     // DIO Port for Limit switch
     public static final int kElevatorLimitSwitchPort = 0;
 
     // Speed
-    public static final double kElevatorSpeed = 0.5;
+    public static final double kElevatorSpeed = 0.2;
 
     // Height of each level, defined in motor rotations  
     // NEED TO TEST AND ADJUST THESE VALUES
@@ -154,11 +162,13 @@ public final class Constants {
     public static final double kAlgaeLevel1 = 20.0 * 260 / 42;
     public static final double kAlgaeLevel2 = 35.0 * 260 / 42;
 
-    public static final SparkMaxConfig leadConfig = new SparkMaxConfig();
-    public static final SparkMaxConfig followConfig = new SparkMaxConfig();
+    public static final SparkFlexConfig leadConfig = new SparkFlexConfig();
+    public static final SparkFlexConfig followConfig = new SparkFlexConfig();
 
     static {
             
+            
+
             leadConfig.smartCurrentLimit(50);
             leadConfig.idleMode(IdleMode.kBrake);  
             leadConfig.openLoopRampRate(2.0);      
@@ -176,11 +186,12 @@ public final class Constants {
 
   public static final class CoralConstants {
     // SPARK MAX CAN IDs
-    public static final int kCoralCanID = 13;
-    public static final int kWristCanID = 12;
+    public static final int kCoralCanID = 15;
+    public static final int kWristCanID = 14;
 
     // Speed
-    public static final double kCoralSpeed = 0.05;
+    public static final double kCoralSpeed = 0.5;
+    public static final double kCoralWristSpeed = 0.2;
 
     public static final SparkMaxConfig coral = new SparkMaxConfig();
     public static final SparkMaxConfig wrist = new SparkMaxConfig();
@@ -211,9 +222,9 @@ public final class Constants {
 
   public static final class AlgaeConstants {
         // SPARK MAX CAN IDs
-        public static final int kAlgaeWristCanID = 14;
-        public static final int kAlgaeLeadCanID = 15;
-        public static final int kAlgaeFollowCanID = 16;
+        public static final int kAlgaeWristCanID = 13;
+        public static final int kAlgaeLeadCanID = 11;
+        public static final int kAlgaeFollowCanID = 12;
     
         // Speed
         public static final double kAlgaeSpeed = 0.5;
