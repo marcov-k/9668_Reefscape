@@ -48,11 +48,9 @@ public class Robot extends TimedRobot {
   
 
   @Override
-  public void robotInit() {
-    //autoController.Initialize();
+  public void robotInit() {    
     swerveDrive.setPose(0,0,0);
     elevator.init();
-    elevator.goToLevel(0);
     nthumandriver = NetworkTableInstance.getDefault().getTable("GameManager").getEntry("HumanDriver");
   }
 
@@ -125,6 +123,7 @@ public class Robot extends TimedRobot {
       coral.wriststop();
     }
 
+
     // Triggers - control intake and outtake
     if (controller.getRightTriggerAxis() > 0.05) {  
       algae.intake();
@@ -150,15 +149,17 @@ public class Robot extends TimedRobot {
     else {
       algae.wriststop();
     }
-     
+    
+    
     // Back button - Toggles autonomous mode     
     if (controller.getBackButtonPressed()) {
-      //teleautonomous = !teleautonomous;      
+      teleautonomous = !teleautonomous;      
     }
     
-    // Start button - Toggles field relative
+    // Start button - Toggle field relative and reset heading.
     if (controller.getStartButtonPressed()) {            
       fieldRelative = !fieldRelative;
+      swerveDrive.zeroHeading();
     }
 
     // Get control values from the controller and apply speed limit and deadband
@@ -173,9 +174,9 @@ public class Robot extends TimedRobot {
     // If a human isn't currently driving and we're in teleautonomous mode
     if (teleautonomous && !humandriver) {
       // Use controller values from network tables 
-      //strafe = autoController.leftJoyX.get();
-      //forward = autoController.leftJoyY.get();
-      //rotate = autoController.rightJoyX.get();
+      strafe = autoController.leftJoyX.get();
+      forward = autoController.leftJoyY.get();
+      rotate = autoController.rightJoyX.get();
     }
     
 
