@@ -135,15 +135,15 @@ public final class Constants {
     public static final int kElevatorLimitSwitchPort = 0;
 
     // Speed
-    public static final double kElevatorSpeed = 0.2;
+    public static final double kElevatorSpeed = 0.7;
 
     // Height of each level, defined in motor rotations  
     // NEED TO TEST AND ADJUST THESE VALUES
 
-    public static final double[] levels = {0, 19, 100, 180, 260};
+    public static final double[] levels = {0, 20, 38, 110, 240};
 
     public static final double kLowestLevel = 0.0;
-    public static final double kHighestLevel = 260.0;
+    public static final double kHighestLevel = 245.0;
 
     public static final double kCoralLevel1 = 3.0 * 260 / 42;
     public static final double kCoralLevel2 = 16.0 * 260 / 42;

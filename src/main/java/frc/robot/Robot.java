@@ -30,7 +30,7 @@ public class Robot extends TimedRobot {
   boolean teleautonomous;
   boolean humandriver;
   Integer elevatorlevel;
-  
+  boolean autonomousunfolding;
 
   // The robot's subsystems
   private final DriveSubsystem swerveDrive = new DriveSubsystem();
@@ -72,11 +72,22 @@ public class Robot extends TimedRobot {
     fieldRelative = false;
     rateLimit = false;    
     nthumandriver.setBoolean(false);
+    autonomousunfolding = true;
     
   }
 
   @Override
   public void autonomousPeriodic() {
+
+    if (autonomousunfolding){
+      algae.unfold();
+      if (algae.partiallyunfolded) {
+        coral.unfold();
+      }
+      if (algae.unfolded && coral.unfolded) {
+        autonomousunfolding = false;
+      }
+    }
 
     // Get control values from network tables
     strafe = MathUtil.applyDeadband(autoController.leftJoyX.get(), OIConstants.kDriveDeadband);

@@ -21,6 +21,8 @@ public class ElevatorSubsystem extends SubsystemBase{
     private final SparkFlex m_ElevatorLeftSpark; 
     private final SparkFlex m_ElevatorRightSpark;
     private final DigitalInput m_ElevatorLimitSwitch; 
+    private double currentspeed;
+    private double currentposition;
     
     private SparkClosedLoopController closedLoopController;
     private RelativeEncoder encoder;
@@ -63,12 +65,19 @@ public class ElevatorSubsystem extends SubsystemBase{
     public double getPosition() {
         // Right now I'm assuming we'll start by using the left SparkMax motor encoder to determine position, but we might want to add something 
         // like a linear magnetic encoder or string potentiometer for more accuracy. 
-        return encoder.getPosition();
+        currentposition = encoder.getPosition();
+        return currentposition;
     }
 
     public void raise() {
-        m_ElevatorLeftSpark.set(ElevatorConstants.kElevatorSpeed);
-        NTElevatorPosition.setDouble(getPosition());
+        if (currentposition < ElevatorConstants.kHighestLevel) {
+            currentspeed = ElevatorConstants.kElevatorSpeed * Math.min(100,(ElevatorConstants.kHighestLevel - currentposition))/100;
+            m_ElevatorLeftSpark.set(currentspeed);
+            NTElevatorPosition.setDouble(getPosition());
+        }
+        else {
+            m_ElevatorLeftSpark.stopMotor();
+        }
     }
 
     public void stop() {
@@ -77,7 +86,9 @@ public class ElevatorSubsystem extends SubsystemBase{
 
     public void lower() {        
         if (!m_ElevatorLimitSwitch.get()) {
-            m_ElevatorLeftSpark.set(-ElevatorConstants.kElevatorSpeed);
+            currentspeed = -ElevatorConstants.kElevatorSpeed * Math.min(100, currentposition)/100;
+            m_ElevatorLeftSpark.set(currentspeed);
+            NTElevatorPosition.setDouble(getPosition());
         }
         else {        
             m_ElevatorLeftSpark.stopMotor();        

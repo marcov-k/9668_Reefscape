@@ -20,7 +20,9 @@ public class AlgaeSubsystem extends SubsystemBase{
     private SparkClosedLoopController AlgaeClosedLoopController;
     private RelativeEncoder encoder;
     
-
+    public boolean unfolded;
+    public boolean partiallyunfolded;
+    
     public AlgaeSubsystem(){
 
         // Algae Intake 
@@ -40,6 +42,9 @@ public class AlgaeSubsystem extends SubsystemBase{
     
         // Algae Encoder
         encoder = m_AlgaeLeftSpark.getEncoder();
+
+        unfolded = false;
+        partiallyunfolded = false;
     }
 
     public double getPosition() {
@@ -76,6 +81,20 @@ public class AlgaeSubsystem extends SubsystemBase{
         AlgaeClosedLoopController.setReference(2.0,  ControlType.kPosition);            
     }
     
+    public void unfold() {
+        if (encoder.getPosition() < 5) {
+            wristlower();
+        }
+        else if (encoder.getPosition() < 15) {
+            wristlower();
+            partiallyunfolded = true;
+        }
+        else {
+            wriststop();
+            unfolded = true;
+        }           
+    }
 
+    
 
 }

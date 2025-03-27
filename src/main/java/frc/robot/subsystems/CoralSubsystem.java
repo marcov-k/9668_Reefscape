@@ -22,6 +22,8 @@ public class CoralSubsystem extends SubsystemBase{
     private RelativeEncoder encoder;
     
 
+    public boolean unfolded;
+
     public CoralSubsystem(){
 
         // Coral Motor 
@@ -37,6 +39,8 @@ public class CoralSubsystem extends SubsystemBase{
     
         // Coral Encoder
         encoder = m_CoralLeftSpark.getEncoder();
+
+        unfolded = false;
     }
 
     public double getPosition() {
@@ -73,6 +77,14 @@ public class CoralSubsystem extends SubsystemBase{
         coralClosedLoopController.setReference(2.0,  ControlType.kPosition);            
     }
     
-
+    public void unfold() {
+        if (encoder.getPosition() < 15.0) {
+            wristlower();
+        }
+        else {
+            wriststop();
+            unfolded = true;
+        }           
+    }
 
 }
