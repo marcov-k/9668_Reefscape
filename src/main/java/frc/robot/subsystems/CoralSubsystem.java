@@ -1,8 +1,6 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants.CoralConstants;
-
-
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.revrobotics.RelativeEncoder;
@@ -44,7 +42,7 @@ public class CoralSubsystem extends SubsystemBase{
         m_CoralWristSpark.configure(CoralConstants.wrist, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // PID Controller
-        coralClosedLoopController = m_CoralLeftSpark.getClosedLoopController();
+        coralClosedLoopController = m_CoralWristSpark.getClosedLoopController();
     
         // Coral Encoder
         encoder = m_CoralWristSpark.getEncoder();
@@ -103,6 +101,10 @@ public class CoralSubsystem extends SubsystemBase{
             wriststop();
             unfolded = true;
         }           
+    }
+
+    public void auto() {
+        coralClosedLoopController.setReference(10,  ControlType.kPosition); 
     }
 
     public void init() {

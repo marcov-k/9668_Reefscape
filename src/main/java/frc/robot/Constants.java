@@ -184,7 +184,7 @@ public final class Constants {
 
     // Speed
     public static final double kCoralSpeed = 0.5;
-    public static final double kCoralWristSpeed = 0.3;
+    public static final double kCoralWristSpeed = 0.20;
 
     public static final SparkMaxConfig coral = new SparkMaxConfig();
     public static final SparkMaxConfig wrist = new SparkMaxConfig();
@@ -258,8 +258,8 @@ public final class Constants {
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
     public static final double kDriveDeadband = 0.02;
-    public static final double kDriverSpeedLimit = 0.90; // 50% of max speed
-    public static final double kDriverRotationLimit = 0.75; // 50% of max speed
+    public static final double kDriverSpeedLimit = 0.90; // max forward speed
+    public static final double kDriverRotationLimit = 0.80; // max rotational speed
   }
 
   public static final class AutoConstants {

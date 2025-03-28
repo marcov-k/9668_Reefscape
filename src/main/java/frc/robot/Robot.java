@@ -108,7 +108,7 @@ public class Robot extends TimedRobot {
     autonomousunfolding = true;
     algae.init();
     coral.init();
-    forward = 0.2;
+    forward = 0.25;
   }
 
   @Override
@@ -116,13 +116,11 @@ public class Robot extends TimedRobot {
 
     if (autonomousunfolding){
       algae.unfold();
-      // if (algae.partiallyunfolded) {
-        //coral.unfold();
-      // }
 
       if (algae.unfolded) {
         forward = 0.0;
         autonomousunfolding = false; 
+        coral.auto();
       }
       swerveDrive.drive(forward, 0, 0, fieldRelative, rateLimit);     
     }
