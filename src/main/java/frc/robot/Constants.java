@@ -258,8 +258,8 @@ public final class Constants {
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
     public static final double kDriveDeadband = 0.02;
-    public static final double kDriverSpeedLimit = 0.70; // 50% of max speed
-    public static final double kDriverRotationLimit = 0.50; // 50% of max speed
+    public static final double kDriverSpeedLimit = 0.90; // 50% of max speed
+    public static final double kDriverRotationLimit = 0.75; // 50% of max speed
   }
 
   public static final class AutoConstants {
