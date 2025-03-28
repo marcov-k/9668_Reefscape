@@ -7,7 +7,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import edu.wpi.first.wpilibj.DigitalInput;
+// import edu.wpi.first.wpilibj.DigitalInput;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkFlex;
@@ -21,7 +21,7 @@ public class ElevatorSubsystem extends SubsystemBase{
 
     private final SparkFlex m_ElevatorLeftSpark; 
     private final SparkFlex m_ElevatorRightSpark;
-    private final DigitalInput m_ElevatorLimitSwitch; 
+    // private final DigitalInput m_ElevatorLimitSwitch; 
     private double currentspeed;
     private double currentposition;
     
@@ -47,7 +47,7 @@ public class ElevatorSubsystem extends SubsystemBase{
         
         // Elevator Limit Switch returns true when when open false when circuit is closed
         // Wire this as normally closed
-        m_ElevatorLimitSwitch = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchPort);
+        // m_ElevatorLimitSwitch = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchPort);
 
         // PID Controller
         closedLoopController = m_ElevatorLeftSpark.getClosedLoopController();
@@ -97,15 +97,11 @@ public class ElevatorSubsystem extends SubsystemBase{
     }
 
     public void lower() {        
-        //if (!m_ElevatorLimitSwitch.get()) {
-            currentspeed = -ElevatorConstants.kElevatorSpeed * Math.min(100, currentposition)/100;
-            m_ElevatorLeftSpark.set(currentspeed);
-            NTElevatorPosition.setDouble(getPosition());
-        //}
-        //else {        
-        //    m_ElevatorLeftSpark.stopMotor();        
-            
-        //}
+        
+        currentspeed = -ElevatorConstants.kElevatorSpeed * Math.min(100, currentposition)/100;
+        m_ElevatorLeftSpark.set(currentspeed);
+        NTElevatorPosition.setDouble(getPosition());
+        
         NTElevatorPosition.setDouble(getPosition());
     }
 
