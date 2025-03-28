@@ -135,7 +135,7 @@ public final class Constants {
     public static final int kElevatorLimitSwitchPort = 0;
 
     // Speed
-    public static final double kElevatorSpeed = 0.7;
+    public static final double kElevatorSpeed = 0.9;
 
     // Height of each level, defined in motor rotations  
     // NEED TO TEST AND ADJUST THESE VALUES
@@ -184,7 +184,7 @@ public final class Constants {
 
     // Speed
     public static final double kCoralSpeed = 0.5;
-    public static final double kCoralWristSpeed = 0.2;
+    public static final double kCoralWristSpeed = 0.3;
 
     public static final SparkMaxConfig coral = new SparkMaxConfig();
     public static final SparkMaxConfig wrist = new SparkMaxConfig();
@@ -221,7 +221,7 @@ public final class Constants {
     
         // Speed
         public static final double kAlgaeSpeed = 0.5;
-        public static final double kAlgaeWristSpeed = 0.2;
+        public static final double kAlgaeWristSpeed = 0.3;
     
         public static final SparkMaxConfig AlgaeLead = new SparkMaxConfig();
         public static final SparkMaxConfig AlgaeFollow = new SparkMaxConfig();
@@ -258,8 +258,8 @@ public final class Constants {
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
     public static final double kDriveDeadband = 0.02;
-    public static final double kDriverSpeedLimit = 0.25; // 50% of max speed
-    public static final double kDriverRotationLimit = 0.25; // 30% of max speed
+    public static final double kDriverSpeedLimit = 0.70; // 50% of max speed
+    public static final double kDriverRotationLimit = 0.50; // 50% of max speed
   }
 
   public static final class AutoConstants {

@@ -12,6 +12,11 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkClosedLoopController;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
+
 
 public class CoralSubsystem extends SubsystemBase{
 
@@ -20,7 +25,11 @@ public class CoralSubsystem extends SubsystemBase{
     
     private SparkClosedLoopController coralClosedLoopController;
     private RelativeEncoder encoder;
+
     
+    // NetworkTable Entries for Position
+    private NetworkTableEntry NTCoralPosition;
+
 
     public boolean unfolded;
 
@@ -38,9 +47,15 @@ public class CoralSubsystem extends SubsystemBase{
         coralClosedLoopController = m_CoralLeftSpark.getClosedLoopController();
     
         // Coral Encoder
-        encoder = m_CoralLeftSpark.getEncoder();
+        encoder = m_CoralWristSpark.getEncoder();
 
         unfolded = false;
+
+        
+        // Initialize NetworkTable variables
+        NetworkTable ElevatorTable = NetworkTableInstance.getDefault().getTable("Elevator");
+
+        NTCoralPosition = ElevatorTable.getEntry("CoralPosition");
     }
 
     public double getPosition() {
@@ -61,7 +76,8 @@ public class CoralSubsystem extends SubsystemBase{
         m_CoralLeftSpark.set(CoralConstants.kCoralSpeed);
     }
 
-    public void wristraise() {
+    public void wristraise() {        
+        NTCoralPosition.setDouble(encoder.getPosition());
         m_CoralWristSpark.set(-CoralConstants.kCoralWristSpeed);
     }
 
@@ -70,6 +86,7 @@ public class CoralSubsystem extends SubsystemBase{
     }
 
     public void wristlower() {        
+        NTCoralPosition.setDouble(encoder.getPosition());
         m_CoralWristSpark.set(CoralConstants.kCoralWristSpeed);
     }
 
@@ -78,13 +95,18 @@ public class CoralSubsystem extends SubsystemBase{
     }
     
     public void unfold() {
-        if (encoder.getPosition() < 15.0) {
-            wristlower();
+        NTCoralPosition.setDouble(encoder.getPosition());
+        if (encoder.getPosition() > -60) {
+            wristraise();
         }
-        else {
+        else if (encoder.getPosition() < -60) {
             wriststop();
             unfolded = true;
         }           
+    }
+
+    public void init() {
+        encoder.setPosition(0);
     }
 
 }

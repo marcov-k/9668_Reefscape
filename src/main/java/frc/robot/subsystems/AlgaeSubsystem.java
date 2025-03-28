@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants.AlgaeConstants;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.revrobotics.RelativeEncoder;
@@ -10,6 +11,10 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkClosedLoopController;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
 
 public class AlgaeSubsystem extends SubsystemBase{
 
@@ -22,6 +27,9 @@ public class AlgaeSubsystem extends SubsystemBase{
     
     public boolean unfolded;
     public boolean partiallyunfolded;
+
+    // NetworkTable Entries for Position
+    private NetworkTableEntry NTAlgaePosition;
     
     public AlgaeSubsystem(){
 
@@ -41,10 +49,15 @@ public class AlgaeSubsystem extends SubsystemBase{
         AlgaeClosedLoopController = m_AlgaeLeftSpark.getClosedLoopController();
     
         // Algae Encoder
-        encoder = m_AlgaeLeftSpark.getEncoder();
+        encoder = m_AlgaeWristSpark.getEncoder();
 
         unfolded = false;
         partiallyunfolded = false;
+
+        
+        // Initialize NetworkTable variables
+        NetworkTable ElevatorTable = NetworkTableInstance.getDefault().getTable("Elevator");
+        NTAlgaePosition = ElevatorTable.getEntry("AlgaePosition");
     }
 
     public double getPosition() {
@@ -66,6 +79,7 @@ public class AlgaeSubsystem extends SubsystemBase{
     }
 
     public void wristraise() {
+        NTAlgaePosition.setDouble(encoder.getPosition());
         m_AlgaeWristSpark.set(-AlgaeConstants.kAlgaeWristSpeed);
     }
 
@@ -73,7 +87,8 @@ public class AlgaeSubsystem extends SubsystemBase{
         m_AlgaeWristSpark.stopMotor();
     }
 
-    public void wristlower() {        
+    public void wristlower() { 
+        NTAlgaePosition.setDouble(encoder.getPosition());       
         m_AlgaeWristSpark.set(AlgaeConstants.kAlgaeWristSpeed);
     }
 
@@ -82,19 +97,25 @@ public class AlgaeSubsystem extends SubsystemBase{
     }
     
     public void unfold() {
+        
+        NTAlgaePosition.setDouble(encoder.getPosition());
         if (encoder.getPosition() < 5) {
             wristlower();
         }
-        else if (encoder.getPosition() < 15) {
+        else if (encoder.getPosition() < 10) {
             wristlower();
             partiallyunfolded = true;
         }
-        else {
-            wriststop();
+        else if (encoder.getPosition() > 35) {
             unfolded = true;
+            wriststop();
         }           
     }
 
+    public void init() {
+        encoder.setPosition(0);
+        unfolded = false;
+    }
     
 
 }

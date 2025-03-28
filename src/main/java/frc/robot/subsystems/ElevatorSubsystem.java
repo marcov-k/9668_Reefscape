@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -29,6 +30,10 @@ public class ElevatorSubsystem extends SubsystemBase{
       // NetworkTable Entries for Position
     private NetworkTableEntry NTElevatorPosition;
 
+    public boolean levelchanged;
+
+    public double elevatorspeedlimiter;
+
     public ElevatorSubsystem(){
 
         // Left Elevator Motor 
@@ -54,6 +59,8 @@ public class ElevatorSubsystem extends SubsystemBase{
         NetworkTable ElevatorTable = NetworkTableInstance.getDefault().getTable("Elevator");
         NTElevatorPosition = ElevatorTable.getEntry("Position");
 
+        levelchanged = false;
+
     }
 
     public void init() {
@@ -67,6 +74,11 @@ public class ElevatorSubsystem extends SubsystemBase{
         // like a linear magnetic encoder or string potentiometer for more accuracy. 
         currentposition = encoder.getPosition();
         return currentposition;
+    }
+
+    public void periodic() {
+        currentposition = encoder.getPosition();
+        elevatorspeedlimiter = (Constants.ElevatorConstants.kHighestLevel + 50 - currentposition) / ( Constants.ElevatorConstants.kHighestLevel + 50);
     }
 
     public void raise() {
@@ -85,15 +97,15 @@ public class ElevatorSubsystem extends SubsystemBase{
     }
 
     public void lower() {        
-        if (!m_ElevatorLimitSwitch.get()) {
+        //if (!m_ElevatorLimitSwitch.get()) {
             currentspeed = -ElevatorConstants.kElevatorSpeed * Math.min(100, currentposition)/100;
             m_ElevatorLeftSpark.set(currentspeed);
             NTElevatorPosition.setDouble(getPosition());
-        }
-        else {        
-            m_ElevatorLeftSpark.stopMotor();        
+        //}
+        //else {        
+        //    m_ElevatorLeftSpark.stopMotor();        
             
-        }
+        //}
         NTElevatorPosition.setDouble(getPosition());
     }
 
@@ -132,8 +144,11 @@ public class ElevatorSubsystem extends SubsystemBase{
         closedLoopController.setReference(ElevatorConstants.kIntakeLevel,  ControlType.kPosition);        
     }
 
-    public void goToLevel(int level) {             
-        closedLoopController.setReference(ElevatorConstants.levels[level], ControlType.kPosition);
+    public void goToLevel(int level) {  
+        if (levelchanged) {
+            closedLoopController.setReference(ElevatorConstants.levels[level], ControlType.kPosition);
+            levelchanged = false;
+        }                   
     }
 
 }

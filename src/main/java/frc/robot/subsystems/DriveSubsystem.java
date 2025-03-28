@@ -116,6 +116,8 @@ public class DriveSubsystem extends SubsystemBase {
     // PoseZ.setDouble(currentPose.getRotation().getDegrees());
     double currentangle = m_gyro.getAngle() % 360;
     PoseZ.setDouble(currentangle);
+
+    
   }
 
   /**
@@ -282,8 +284,11 @@ public class DriveSubsystem extends SubsystemBase {
 
   /** Zeroes the heading of the robot. */
   public void zeroHeading() {
-    m_gyro.reset();
+    m_gyro.zeroYaw();
+    m_gyro.setAngleAdjustment(180);
   }
+
+
 
   /**
    * Returns the heading of the robot.
