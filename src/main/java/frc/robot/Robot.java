@@ -21,6 +21,11 @@ import frc.robot.subsystems.NetworkController;
 
 public class Robot extends TimedRobot {
 
+  // Auto time  
+  long elapsedTime;
+  long autonomousDuration = 15000;
+  long startTime;
+
   // Drive command variables
   Double strafe;
   Double forward;
@@ -108,31 +113,21 @@ public class Robot extends TimedRobot {
     autonomousunfolding = true;
     algae.init();
     coral.init();
-    forward = 0.25;
+    forward = 0.20;
+    startTime = System.currentTimeMillis();
   }
 
   @Override
   public void autonomousPeriodic() {
 
-    if (autonomousunfolding){
-      algae.unfold();
-
-      if (algae.unfolded) {
-        forward = 0.0;
-        autonomousunfolding = false; 
-        coral.auto();
-      }
-      swerveDrive.drive(forward, 0, 0, fieldRelative, rateLimit);     
+    elapsedTime = System.currentTimeMillis() - startTime;
+    
+    if (elapsedTime > 5000 && elapsedTime < 6000) {
+      coral.auto();
+      forward = 0.00;
     }
-
-    // Get control values from network tables
-    //strafe = MathUtil.applyDeadband(autoController.leftJoyX.get(), OIConstants.kDriveDeadband);
-    //forward = MathUtil.applyDeadband(autoController.leftJoyY.get(), OIConstants.kDriveDeadband);
-    //rotate = MathUtil.applyDeadband(autoController.rightJoyX.get(), OIConstants.kDriveDeadband);
-
-    // Send control values to swerve drive
-    //swerveDrive.drive(forward, strafe, rotate, fieldRelative, rateLimit);
-
+    
+    swerveDrive.drive(forward, 0, 0, fieldRelative, rateLimit);
   }
 
   @Override

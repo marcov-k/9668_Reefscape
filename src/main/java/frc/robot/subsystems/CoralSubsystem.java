@@ -104,7 +104,7 @@ public class CoralSubsystem extends SubsystemBase{
     }
 
     public void auto() {
-        coralClosedLoopController.setReference(10,  ControlType.kPosition); 
+        coralClosedLoopController.setReference(20,  ControlType.kPosition); 
     }
 
     public void init() {
