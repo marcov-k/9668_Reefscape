@@ -4,7 +4,11 @@
 
 package frc.robot;
 
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
+
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -42,6 +46,15 @@ public class Robot extends TimedRobot {
   private final ElevatorSubsystem elevator = new ElevatorSubsystem();
   private final CoralSubsystem coral = new CoralSubsystem();
   private final AlgaeSubsystem algae = new AlgaeSubsystem();
+
+  // PhotonVision 
+  PhotonCamera camera = new PhotonCamera("photonvision");
+  boolean targetVisible;
+  double targetYaw;
+  int tagid;
+  int bestTarget;
+  double largestArea;
+  double targetRange;
 
   // The driver's controller
   private final XboxController controller = new XboxController(OIConstants.kDriverControllerPort);
@@ -114,20 +127,63 @@ public class Robot extends TimedRobot {
     algae.init();
     coral.init();
     forward = 0.20;
+    strafe = 0.0;
+    rotate = 0.0;
     startTime = System.currentTimeMillis();
   }
 
   @Override
   public void autonomousPeriodic() {
 
+    forward = 0.0;
+    strafe = 0.0;
+    rotate = 0.0; 
+
     elapsedTime = System.currentTimeMillis() - startTime;
     
-    if (elapsedTime > 5000 && elapsedTime < 6000) {
-      coral.auto();
-      forward = 0.00;
+    // Drive forward for two seconds
+    if (elapsedTime < 2000) {
+      forward = 0.2;
+    }
+    // For the next 5 seconds rotate until you see a Reef AprilTag, then rotate and drive towards it
+    else if (elapsedTime < 7000) {      
+      targetVisible = false;
+      targetYaw = 0.0;
+      targetRange = 0.0;
+      largestArea = 0.0;
+      var results = camera.getAllUnreadResults();
+
+      if (!results.isEmpty()){
+        // Get the most recent frame
+        var result = results.get(results.size() - 1);
+        if (result.hasTargets()) {
+            // At least one AprilTag was seen by the camera
+            for (var target : result.getTargets()) {
+                tagid = target.getFiducialId();
+                // If the tag is a reef tag
+                if ((tagid > 6 && tagid < 11) || (tagid > 17 && tagid < 21)) {
+                  // Find the closest reef tag (takes up the largest area of screen)
+                  if (target.getArea() > largestArea) {
+                    largestArea = target.getArea();
+                    bestTarget = tagid;
+                    targetYaw = target.getYaw();
+                    targetRange = PhotonUtils.calculateDistanceToTargetMeters(Constants.PhotonVisionConstants.kCameraHeight, Constants.PhotonVisionConstants.kReefAprilTagHeight, Units.degreesToRadians(-30.0), Units.degreesToRadians(target.getPitch()));
+                    targetVisible = true;
+                  }
+                  
+                }
+            }            
+            
+        }
+
+      }
+
+      rotate = targetYaw * Constants.DriveConstants.kMaxAngularSpeed * 0.2;
+      forward = (targetRange - Constants.PhotonVisionConstants.kReefAprilTagDistance) * 0.2;
+
     }
     
-    swerveDrive.drive(forward, 0, 0, fieldRelative, rateLimit);
+    swerveDrive.drive(forward, strafe, rotate, fieldRelative, rateLimit);
   }
 
   @Override

@@ -280,4 +280,9 @@ public final class Constants {
   public static final class NeoMotorConstants {
     public static final double kFreeSpeedRpm = 5676;
   }
+
+  public static final class PhotonVisionConstants {
+    public static final double kCameraHeight = 0.5; // Measured with a tape measure in meters
+  }
+
 }
