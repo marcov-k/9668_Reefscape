@@ -239,14 +239,14 @@ public class Robot extends TimedRobot {
 
     // Triggers - control intake and outtake
     if (controller.getRightTriggerAxis() > 0.05) {  
-      algae.intake();
-      //coral.intake();
+      //algae.intake();
+      coral.intake();
     } else if (controller.getLeftTriggerAxis() > 0.05) {
-      algae.outtake();
-      //coral.outtake();
+      //algae.outtake();
+      coral.outtake();
     } else {
-      algae.stop();
-      //coral.stop();
+      //algae.stop();
+      coral.stop();
     }
 
 
@@ -298,6 +298,8 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     elevatorlevel = 0;
+    CoralModeTrueAlgaeModeFalse = true;
+    elevator.levelchanged = false;
   }
 
   @Override

@@ -106,45 +106,10 @@ public class ElevatorSubsystem extends SubsystemBase{
     }
 
     public void goToCoralLevel(int level) {
-
-        if (level == 0) {
-            closedLoopController.setReference(ElevatorConstants.kLowestLevel,  ControlType.kPosition);            
-        }
-        else if (level == 1) {
-            closedLoopController.setReference(ElevatorConstants.kCoralLevel1,  ControlType.kPosition);            
-        }
-        else if (level == 2) {
-            closedLoopController.setReference(ElevatorConstants.kCoralLevel2,  ControlType.kPosition);            
-        }
-        else if (level == 3) {
-            closedLoopController.setReference(ElevatorConstants.kCoralLevel3,  ControlType.kPosition);            
-        }
-        else if (level == 4) {
-            closedLoopController.setReference(ElevatorConstants.kCoralLevel4,  ControlType.kPosition);            
-        }
+        closedLoopController.setReference(ElevatorConstants.corallevels[level], ControlType.kPosition);
     }
     public void goToAlgaeLevel(int level) {
-
-        if (level == 0) {
-            closedLoopController.setReference(ElevatorConstants.kLowestLevel,  ControlType.kPosition);            
-        }
-        else if (level == 1) {
-            closedLoopController.setReference(ElevatorConstants.kAlgaeLevel1,  ControlType.kPosition);            
-        }
-        else if (level == 2) {
-            closedLoopController.setReference(ElevatorConstants.kAlgaeLevel2,  ControlType.kPosition);            
-        }
-    }
-
-    public void goToIntakeLevel() {
-        closedLoopController.setReference(ElevatorConstants.kIntakeLevel,  ControlType.kPosition);        
-    }
-
-    public void goToLevel(int level) {  
-        if (levelchanged) {
-            closedLoopController.setReference(ElevatorConstants.levels[level], ControlType.kPosition);
-            levelchanged = false;
-        }                   
+        closedLoopController.setReference(ElevatorConstants.algaelevels[level], ControlType.kPosition);
     }
 
 }
