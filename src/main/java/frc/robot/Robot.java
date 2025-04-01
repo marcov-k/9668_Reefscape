@@ -329,7 +329,7 @@ public class Robot extends TimedRobot {
     if (CoralModeTrueAlgaeModeFalse && elevator.levelchanged) {
       elevator.goToCoralLevel(elevatorlevel);
     }
-    else {
+    else if (elevator.levelchanged) {
       elevator.goToAlgaeLevel(elevatorlevel);
     } 
 
