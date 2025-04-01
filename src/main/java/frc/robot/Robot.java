@@ -9,9 +9,6 @@ import org.photonvision.PhotonUtils;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.OIConstants;
@@ -19,8 +16,7 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.AlgaeSubsystem;
-import frc.robot.subsystems.NetworkController;
-
+import frc.robot.subsystems.DPadHelper;
 
 
 public class Robot extends TimedRobot {
@@ -36,10 +32,9 @@ public class Robot extends TimedRobot {
   Double rotate;
   boolean fieldRelative;
   boolean rateLimit;
-  boolean teleautonomous;
-  boolean humandriver;
+
+  // Elevator variables
   Integer elevatorlevel;
-  boolean autonomousunfolding;
   boolean CoralModeTrueAlgaeModeFalse;
 
   // The robot's subsystems
@@ -59,96 +54,39 @@ public class Robot extends TimedRobot {
 
   // The driver's controller
   private final XboxController controller = new XboxController(OIConstants.kDriverControllerPort);
+  DPadHelper dPad = new DPadHelper(controller);
 
-  public class DPadHelper {
-    private final XboxController controller;
-    private int lastPOV = -1;
-    private int current; 
-    private boolean result;   
-
-    public DPadHelper(XboxController controller) {
-        this.controller = controller;
-    }
-
-    public void update() {
-        lastPOV = controller.getPOV();
-    }
-
-    public boolean getDPadUpPressed() {
-        current = controller.getPOV();
-        result = (current == 0 && lastPOV != 0);
-        lastPOV = current;
-        return result;
-    }
-
-    public boolean getDPadDownPressed() {
-        current = controller.getPOV();
-        result = (current == 180 && lastPOV != 180);
-        lastPOV = current;
-        return result;
-    }
-
-    public boolean getDPadLeftPressed() {
-      current = controller.getPOV();
-      result = (current == 270 && lastPOV != 270);
-      lastPOV = current;
-      return result;
-    }
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
   
-    public boolean getDPadRightPressed() {
-      current = controller.getPOV();
-      result = (current == 90 && lastPOV != 90);
-      lastPOV = current;
-      return result;
-    }
-    
-  }
-
-  DPadHelper dPad = new DPadHelper(new XboxController(0));
-
-  NetworkTable GameManager;
-  NetworkTableEntry nthumandriver;
-  NetworkTableEntry ntfieldrelative;
-  NetworkController autoController = new NetworkController();
-  
-
+  /* ROBOT INIT */
   @Override
-  public void robotInit() {    
+  public void robotInit() { 
+    swerveDrive.zeroHeading();   
     swerveDrive.setPose(0,0,180);
-    elevator.init();
-    nthumandriver = NetworkTableInstance.getDefault().getTable("GameManager").getEntry("HumanDriver");
-    ntfieldrelative = NetworkTableInstance.getDefault().getTable( "GameManager").getEntry("FieldRelative");
-    autoController.Initialize();
+    elevator.init();    
   }
 
+  /* ROBOT PERIODIC */
   @Override
   public void robotPeriodic() {
     swerveDrive.periodic();
     elevator.periodic();
   }
 
-  @Override
-  public void disabledInit() {}
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-  @Override
-  public void disabledPeriodic() {}
-
+  /* AUTONOMOUS INIT */
   @Override
   public void autonomousInit() {  
-    // Initially using field relative with rate limits
     elevator.init();
-    fieldRelative = false;
-    rateLimit = false;    
-    nthumandriver.setBoolean(false);
-    autonomousunfolding = true;
     algae.init();
     coral.init();
-    forward = 0.20;
-    strafe = 0.0;
-    rotate = 0.0;
+    fieldRelative = false;
+    rateLimit = false;    
     startTime = System.currentTimeMillis();
   }
 
+  /* AUTONOMOUS PERIODIC */
   @Override
   public void autonomousPeriodic() {
 
@@ -161,8 +99,8 @@ public class Robot extends TimedRobot {
     
     // Drive forward for two seconds
     if (elapsedTime < 2000) {
-      forward = 0.05;
-    }
+      forward = 0.05; }
+    
     // For the next 5 seconds rotate until you see a Reef AprilTag, then rotate and drive towards it
     else if (elapsedTime < 7000) {      
       targetVisible = false;      
@@ -186,128 +124,99 @@ public class Robot extends TimedRobot {
                     bestTarget = tagid;
                     targetYaw = target.getYaw();
                     targetRange = PhotonUtils.calculateDistanceToTargetMeters(Constants.PhotonVisionConstants.kCameraHeight, Constants.PhotonVisionConstants.kReefAprilTagHeight, Units.degreesToRadians(0.0), Units.degreesToRadians(target.getPitch()));
-                    targetVisible = true;
-                  }
-                  
-                }
-            }            
-            
-        }
-
-      }
+                    targetVisible = true;}}}}}
 
       if (targetVisible) {
-        rotate = targetYaw / 15;
         // forward = (targetRange - Constants.PhotonVisionConstants.kReefAprilTagDistance) * 0.03;
-      }
-      
-
-    }
+        rotate = targetYaw / 15; }}
     
     swerveDrive.drive(forward, strafe, rotate, fieldRelative, rateLimit);
   }
 
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
+  /* TELEOP INIT */
   @Override
   public void teleopInit() {
     // Initially using field relative with rate limits
     elevator.init();
+    elevatorlevel = 0;
     fieldRelative = true;
     rateLimit = false;
-    teleautonomous = false;
-    nthumandriver.setBoolean(true);    
-    elevatorlevel = 0;
-    swerveDrive.zeroHeading();
   }
 
+  /* TELEOP PERIODIC */
   @Override
   public void teleopPeriodic() {
     
-    
-    // A and Y Button - control elevator
+    // A and Y Button - manually control elevator
     if (controller.getAButton()) {         
-      elevator.lower();  
-    } else if (controller.getYButton()) { 
-      elevator.raise();   
-    } else {
-      elevator.stop();
-    }
+      elevator.lower(); } 
+    else if (controller.getYButton()) { 
+      elevator.raise(); } 
+    else {
+      elevator.stop(); }
 
     
-    // B and X Button - control coral wrist
+    // B and X Button - manually control coral wrist
     if (controller.getBButton()) {
-      coral.wristraise();
-    } else if (controller.getXButton()) {
-      coral.wristlower();
-    } else {
-      coral.wriststop();
-    }
+      coral.wristraise(); } 
+    else if (controller.getXButton()) {
+      coral.wristlower(); } 
+    else {
+      coral.wriststop(); }
 
 
     // Triggers - control intake and outtake
     if (controller.getRightTriggerAxis() > 0.05) {  
       //algae.intake();
-      coral.intake();
-    } else if (controller.getLeftTriggerAxis() > 0.05) {
+      coral.intake(); } 
+    else if (controller.getLeftTriggerAxis() > 0.05) {
       //algae.outtake();
-      coral.outtake();
-    } else {
+      coral.outtake(); } 
+    else {
       //algae.stop();
-      coral.stop();
-    }
+      coral.stop(); }
 
 
-    // Bumpers - control Algae Wrist
+    // Bumpers - manually control Algae Wrist
     if (controller.getRightBumperButton()) {
-      algae.wristraise();      
-    } else if (controller.getLeftBumperButton()) {
-      algae.wristlower();
-    } else {
-      algae.wriststop();
-    }
+      algae.wristraise(); } 
+    else if (controller.getLeftBumperButton()) {
+      algae.wristlower(); } 
+    else {
+      algae.wriststop(); }
     
     
-    // Back button - Toggles autonomous mode     
+    // Back button - Zero Heading
     if (controller.getBackButtonPressed()) {
-      //teleautonomous = !teleautonomous;  
-      swerveDrive.zeroHeading();
-    }
-    
-    // Start button - Toggle field relative and reset heading.
-    if (controller.getStartButtonPressed()) {            
-      fieldRelative = !fieldRelative;
-      
-    }
+      swerveDrive.zeroHeading(); }
 
-    // Get control values from the controller and apply speed limit and deadband
+      
+    // Start button - Toggles field relative
+    if (controller.getStartButtonPressed()) {            
+      fieldRelative = !fieldRelative; }
+
+    // Get control values from the controller, apply speed limits and deadband
     strafe = MathUtil.applyDeadband(controller.getLeftX() * OIConstants.kDriverSpeedLimit * elevator.elevatorspeedlimiter, OIConstants.kDriveDeadband);
     forward = MathUtil.applyDeadband(-controller.getLeftY() * OIConstants.kDriverSpeedLimit * elevator.elevatorspeedlimiter, OIConstants.kDriveDeadband);
     rotate = MathUtil.applyDeadband(controller.getRightX() * OIConstants.kDriverRotationLimit, OIConstants.kDriveDeadband);
 
-    // Evaluate whether a driver is driving and publish to networktables
-    humandriver = !(strafe == 0 && forward == 0 && rotate == 0);
-    nthumandriver.setBoolean(humandriver);
-
-    // If a human isn't currently driving and we're in teleautonomous mode
-    //if (teleautonomous && !humandriver) {
-      // Use controller values from network tables 
-      //strafe = autoController.leftJoyX.get();
-      //forward = autoController.leftJoyY.get();
-      //rotate = autoController.rightJoyX.get();
-    //}
-    
-
-    // Send controller values to swerve drive
+    // Send control values to swerve drive
     swerveDrive.drive(forward, strafe, rotate, fieldRelative, rateLimit);
-
   }
 
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
+  /* TEST INIT */
   @Override
   public void testInit() {
     elevatorlevel = 0;
     CoralModeTrueAlgaeModeFalse = true;
-    elevator.levelchanged = false;
+    elevator.motorrunning = true;
   }
 
+  /* TEST PERIODIC */
   @Override
   public void testPeriodic() {
     
@@ -322,32 +231,30 @@ public class Robot extends TimedRobot {
       algae.unfold();
       coral.fold();}
 
-    // DPad Up and Down - control elevator
+    // DPad Up - Go up a level
     if (dPad.getDPadUpPressed()) {
       elevatorlevel +=1;            
-      elevatorlevel = elevatorlevel % 5;  
-      elevator.levelchanged = true;
+      elevatorlevel = elevatorlevel % 5; 
       if (CoralModeTrueAlgaeModeFalse) {
         elevator.goToCoralLevel(elevatorlevel); } 
       else {
         elevator.goToAlgaeLevel(elevatorlevel); }}
+    // DPad Down - Go down a level
     else if (dPad.getDPadDownPressed()) {
       elevatorlevel -=1;      
-      elevatorlevel = elevatorlevel % 5;  
-      elevator.levelchanged = true;
+      elevatorlevel = elevatorlevel % 5; 
       if (CoralModeTrueAlgaeModeFalse) {
         elevator.goToCoralLevel(elevatorlevel); } 
       else {
         elevator.goToAlgaeLevel(elevatorlevel); }}
 
-    // A and Y Button - control elevator
-    if (controller.getAButton()) {         
-      elevator.lower();
-      elevator.levelchanged = false; } 
-    else if (controller.getYButton()) { 
-      elevator.raise();
-      elevator.levelchanged = false; } 
-    else if (elevator.levelchanged = false) {
+    // Y Button - manual control elevator Up
+    if (controller.getYButton()) {         
+      elevator.raise();} 
+    // A Button - manual control elevator Down
+    else if (controller.getAButton()) { 
+      elevator.lower();} 
+    else if (elevator.motorrunning = true) {
       elevator.stop();}
   }
 }

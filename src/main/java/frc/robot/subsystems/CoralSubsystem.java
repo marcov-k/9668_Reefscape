@@ -102,6 +102,7 @@ public class CoralSubsystem extends SubsystemBase{
 
     public void init() {
         encoder.setPosition(0);
+        unfolded = false;
     }
 
 }
