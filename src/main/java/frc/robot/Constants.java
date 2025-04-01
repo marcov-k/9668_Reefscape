@@ -194,7 +194,8 @@ public final class Constants {
         
             wrist  
                     .smartCurrentLimit(50)
-                    .idleMode(IdleMode.kBrake);
+                    .idleMode(IdleMode.kBrake)
+                    .closedLoopRampRate(1.0);
 
             wrist.closedLoop 
                     .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
@@ -234,7 +235,8 @@ public final class Constants {
             
                 AlgaeWrist  
                         .smartCurrentLimit(50)
-                        .idleMode(IdleMode.kBrake);
+                        .idleMode(IdleMode.kBrake)
+                        .closedLoopRampRate(1.0);
     
                 AlgaeWrist.closedLoop 
                         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)

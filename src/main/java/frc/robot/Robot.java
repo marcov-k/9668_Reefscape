@@ -63,6 +63,8 @@ public class Robot extends TimedRobot {
   public class DPadHelper {
     private final XboxController controller;
     private int lastPOV = -1;
+    private int current; 
+    private boolean result;   
 
     public DPadHelper(XboxController controller) {
         this.controller = controller;
@@ -73,29 +75,33 @@ public class Robot extends TimedRobot {
     }
 
     public boolean getDPadUpPressed() {
-        int current = controller.getPOV();
-        return current == 0 && lastPOV != 0;
+        current = controller.getPOV();
+        result = (current == 0 && lastPOV != 0);
+        lastPOV = current;
+        return result;
     }
 
     public boolean getDPadDownPressed() {
-        int current = controller.getPOV();
-        return current == 180 && lastPOV != 180;
+        current = controller.getPOV();
+        result = (current == 180 && lastPOV != 180);
+        lastPOV = current;
+        return result;
     }
 
     public boolean getDPadLeftPressed() {
-      int current = controller.getPOV();
-      return current == 270 && lastPOV != 270;
+      current = controller.getPOV();
+      result = (current == 270 && lastPOV != 270);
+      lastPOV = current;
+      return result;
     }
   
     public boolean getDPadRightPressed() {
-      int current = controller.getPOV();
-      return current == 90 && lastPOV != 90;
+      current = controller.getPOV();
+      result = (current == 90 && lastPOV != 90);
+      lastPOV = current;
+      return result;
     }
-
-    // Call at end of periodic loop to lock in current state
-    public void finalizeUpdate() {
-        lastPOV = controller.getPOV();
-    }
+    
   }
 
   DPadHelper dPad = new DPadHelper(new XboxController(0));
@@ -305,45 +311,43 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
     
-    // DPad Left and Right - Select Coral Mode (Left) or Algae Mode (Right)
+    // DPad Left - Select Coral Mode 
     if (dPad.getDPadLeftPressed()) {
       CoralModeTrueAlgaeModeFalse = true;
-    }
+      algae.fold();
+      coral.unfold();}
+    // DPad Right - Select Algae Mode 
     else if (dPad.getDPadRightPressed()) {
-      CoralModeTrueAlgaeModeFalse = false;
-    }
+      CoralModeTrueAlgaeModeFalse = false; 
+      algae.unfold();
+      coral.fold();}
 
     // DPad Up and Down - control elevator
     if (dPad.getDPadUpPressed()) {
-      elevatorlevel +=1;
+      elevatorlevel +=1;            
+      elevatorlevel = elevatorlevel % 5;  
       elevator.levelchanged = true;
-    }
+      if (CoralModeTrueAlgaeModeFalse) {
+        elevator.goToCoralLevel(elevatorlevel); } 
+      else {
+        elevator.goToAlgaeLevel(elevatorlevel); }}
     else if (dPad.getDPadDownPressed()) {
-      elevatorlevel -=1;
+      elevatorlevel -=1;      
+      elevatorlevel = elevatorlevel % 5;  
       elevator.levelchanged = true;
-    }
-    dPad.finalizeUpdate();
-
-    elevatorlevel = elevatorlevel % 5;
-    
-    if (CoralModeTrueAlgaeModeFalse && elevator.levelchanged) {
-      elevator.goToCoralLevel(elevatorlevel);
-    }
-    else if (elevator.levelchanged) {
-      elevator.goToAlgaeLevel(elevatorlevel);
-    } 
+      if (CoralModeTrueAlgaeModeFalse) {
+        elevator.goToCoralLevel(elevatorlevel); } 
+      else {
+        elevator.goToAlgaeLevel(elevatorlevel); }}
 
     // A and Y Button - control elevator
     if (controller.getAButton()) {         
-      elevator.lower();  
-      elevator.levelchanged = false;
-    } else if (controller.getYButton()) { 
-      elevator.raise();   
-      elevator.levelchanged = false;
-    } else if (elevator.levelchanged = false) {
-      elevator.stop();
-    }
-
-
+      elevator.lower();
+      elevator.levelchanged = false; } 
+    else if (controller.getYButton()) { 
+      elevator.raise();
+      elevator.levelchanged = false; } 
+    else if (elevator.levelchanged = false) {
+      elevator.stop();}
   }
 }
