@@ -143,19 +143,49 @@ public class Robot extends TimedRobot {
     elevatorlevel = 0;
     fieldRelative = true;
     rateLimit = false;
+    CoralModeTrueAlgaeModeFalse = true;
+    elevator.motorrunning = true;
   }
 
   /* TELEOP PERIODIC */
   @Override
   public void teleopPeriodic() {
     
-    // A and Y Button - manually control elevator
-    if (controller.getAButton()) {         
-      elevator.lower(); } 
-    else if (controller.getYButton()) { 
-      elevator.raise(); } 
-    else {
-      elevator.stop(); }
+    // DPad Left - Select Coral Mode 
+    if (dPad.getDPadLeftPressed()) {
+      CoralModeTrueAlgaeModeFalse = true;
+      algae.fold();
+      coral.unfold();}
+    // DPad Right - Select Algae Mode 
+    else if (dPad.getDPadRightPressed()) {
+      CoralModeTrueAlgaeModeFalse = false; 
+      algae.unfold();
+      coral.fold();}
+
+    // DPad Up - Go up a level
+    if (dPad.getDPadUpPressed()) {
+      elevatorlevel +=1;            
+      elevatorlevel = elevatorlevel % 5; 
+      if (CoralModeTrueAlgaeModeFalse) {
+        elevator.goToCoralLevel(elevatorlevel); } 
+      else {
+        elevator.goToAlgaeLevel(elevatorlevel); }}
+    // DPad Down - Go down a level
+    else if (dPad.getDPadDownPressed()) {
+      elevatorlevel -=1;      
+      elevatorlevel = elevatorlevel % 5; 
+      if (CoralModeTrueAlgaeModeFalse) {
+        elevator.goToCoralLevel(elevatorlevel); } 
+      else {
+        elevator.goToAlgaeLevel(elevatorlevel); }}
+
+    // Y Button - manual control elevator Up and Down
+    if (controller.getYButton()) {         
+      elevator.raise();} 
+    else if (controller.getAButton()) { 
+      elevator.lower();} 
+    else if (elevator.motorrunning) {
+      elevator.stop();}
 
     
     // B and X Button - manually control coral wrist
@@ -169,13 +199,17 @@ public class Robot extends TimedRobot {
 
     // Triggers - control intake and outtake
     if (controller.getRightTriggerAxis() > 0.05) {  
-      //algae.intake();
-      coral.intake(); } 
+      if (CoralModeTrueAlgaeModeFalse) {
+        coral.intake(); } 
+      else {
+        algae.intake(); }} 
     else if (controller.getLeftTriggerAxis() > 0.05) {
-      //algae.outtake();
-      coral.outtake(); } 
+      if (CoralModeTrueAlgaeModeFalse) {
+        coral.outtake(); } 
+      else {
+        algae.outtake(); }} 
     else {
-      //algae.stop();
+      algae.stop();
       coral.stop(); }
 
 
@@ -210,51 +244,9 @@ public class Robot extends TimedRobot {
 
   /* TEST INIT */
   @Override
-  public void testInit() {
-    elevatorlevel = 0;
-    CoralModeTrueAlgaeModeFalse = true;
-    elevator.motorrunning = true;
-  }
+  public void testInit() { }
 
   /* TEST PERIODIC */
   @Override
-  public void testPeriodic() {
-    
-    // DPad Left - Select Coral Mode 
-    if (dPad.getDPadLeftPressed()) {
-      CoralModeTrueAlgaeModeFalse = true;
-      algae.fold();
-      coral.unfold();}
-    // DPad Right - Select Algae Mode 
-    else if (dPad.getDPadRightPressed()) {
-      CoralModeTrueAlgaeModeFalse = false; 
-      algae.unfold();
-      coral.fold();}
-
-    // DPad Up - Go up a level
-    if (dPad.getDPadUpPressed()) {
-      elevatorlevel +=1;            
-      elevatorlevel = elevatorlevel % 5; 
-      if (CoralModeTrueAlgaeModeFalse) {
-        elevator.goToCoralLevel(elevatorlevel); } 
-      else {
-        elevator.goToAlgaeLevel(elevatorlevel); }}
-    // DPad Down - Go down a level
-    else if (dPad.getDPadDownPressed()) {
-      elevatorlevel -=1;      
-      elevatorlevel = elevatorlevel % 5; 
-      if (CoralModeTrueAlgaeModeFalse) {
-        elevator.goToCoralLevel(elevatorlevel); } 
-      else {
-        elevator.goToAlgaeLevel(elevatorlevel); }}
-
-    // Y Button - manual control elevator Up
-    if (controller.getYButton()) {         
-      elevator.raise();} 
-    // A Button - manual control elevator Down
-    else if (controller.getAButton()) { 
-      elevator.lower();} 
-    else if (elevator.motorrunning = true) {
-      elevator.stop();}
-  }
+  public void testPeriodic() {}
 }
