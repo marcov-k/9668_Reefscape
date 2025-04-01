@@ -156,11 +156,11 @@ public final class Constants {
                         leadConfig.smartCurrentLimit(50);
                         leadConfig.idleMode(IdleMode.kBrake);  
                         leadConfig.openLoopRampRate(2.0);   
-                        leadConfig.closedLoopRampRate(2.0);   
+                        leadConfig.closedLoopRampRate(0.0);   
                         
 
                         leadConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
-                        leadConfig.closedLoop.pid(0.1, 0, 0);
+                        leadConfig.closedLoop.pid(0.4, 0, 0.2);
                         leadConfig.closedLoop.outputRange(-1,1);
                         
 

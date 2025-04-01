@@ -25,6 +25,7 @@ public class ElevatorSubsystem extends SubsystemBase{
     private SparkClosedLoopController closedLoopController;
     private RelativeEncoder encoder;
     private NetworkTableEntry NTElevatorPosition;
+    private NetworkTableEntry NTElevatorLevel;
     private double currentspeed;
     private double currentposition;
     public double elevatorspeedlimiter;
@@ -32,6 +33,7 @@ public class ElevatorSubsystem extends SubsystemBase{
     private DigitalInput ElevatorLimitSwitch;
     private boolean isLimitPressed;
     private boolean wasLimitPressedLastTime;
+    public int level;
 
     public ElevatorSubsystem(){
 
@@ -56,9 +58,10 @@ public class ElevatorSubsystem extends SubsystemBase{
         // Initialize NetworkTable variables
         NetworkTable ElevatorTable = NetworkTableInstance.getDefault().getTable("Elevator");
         NTElevatorPosition = ElevatorTable.getEntry("Position");
-
+        NTElevatorLevel = ElevatorTable.getEntry("Level");
         motorrunning = false;
         wasLimitPressedLastTime = false;
+        level = 0;
     }
 
     public void init() {
@@ -77,6 +80,7 @@ public class ElevatorSubsystem extends SubsystemBase{
     public void periodic() {
         currentposition = encoder.getPosition(); 
         NTElevatorPosition.setDouble(currentposition);
+        NTElevatorLevel.setInteger(level);
         // Reset encoder position to zero when limit switch is triggered
         isLimitPressed = !ElevatorLimitSwitch.get();
         if (isLimitPressed && !wasLimitPressedLastTime) {
@@ -110,7 +114,7 @@ public class ElevatorSubsystem extends SubsystemBase{
         motorrunning = false; }
 
     public void goToAlgaeLevel(int level) {
-        if (level < 0 || level >= ElevatorConstants.algaelevels.length) return;
+        //if (level < 0 || level >= ElevatorConstants.algaelevels.length) return;
         closedLoopController.setReference(ElevatorConstants.algaelevels[level], ControlType.kPosition);
         motorrunning = false; }
 

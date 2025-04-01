@@ -86,7 +86,6 @@ public class Robot extends TimedRobot {
     elevator.periodic();
     coral.periodic();
     algae.periodic();
-    
   }
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
@@ -171,7 +170,7 @@ public class Robot extends TimedRobot {
     elevatorlevel = 0;
     fieldRelative = true;
     rateLimit = false;
-    CoralModeTrueAlgaeModeFalse = true;
+    CoralModeTrueAlgaeModeFalse = false;
     elevator.motorrunning = true;    
   }
 
@@ -182,25 +181,30 @@ public class Robot extends TimedRobot {
     // DPad Left - Select Coral Mode 
     if (dPad.getDPadLeftPressed()) {
       CoralModeTrueAlgaeModeFalse = true;
-      algae.fold();
-      coral.unfold();}
+      //algae.fold();
+      //coral.unfold();
+      }
     // DPad Right - Select Algae Mode 
     else if (dPad.getDPadRightPressed()) {
       CoralModeTrueAlgaeModeFalse = false; 
-      algae.unfold();
-      coral.fold();}
+      //algae.unfold();
+      //coral.fold();
+      }
 
     // DPad Up - Go up a level
     if (dPad.getDPadUpPressed()) {
-      elevatorlevel +=1;            
+      elevatorlevel +=1;    
+      elevator.level +=1;        
       elevatorlevel = Math.floorMod(elevatorlevel, 5); 
+      
       if (CoralModeTrueAlgaeModeFalse) {
         elevator.goToCoralLevel(elevatorlevel); } 
       else {
-        elevator.goToAlgaeLevel(elevatorlevel); }}
+        elevator.goToAlgaeLevel(elevatorlevel); } }
     // DPad Down - Go down a level
     else if (dPad.getDPadDownPressed()) {
       elevatorlevel -=1;      
+      elevator.level -=1;
       elevatorlevel = Math.floorMod(elevatorlevel, 5); 
       if (CoralModeTrueAlgaeModeFalse) {
         elevator.goToCoralLevel(elevatorlevel); } 
