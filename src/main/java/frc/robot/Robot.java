@@ -19,6 +19,8 @@ import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.DPadHelper;
 
 
+
+
 public class Robot extends TimedRobot {
 
   // Time  
@@ -54,6 +56,7 @@ public class Robot extends TimedRobot {
   double targetForwardDistance;
   double targetStrafeDistance;
   double targetYaw;
+  boolean aligned;
 
   // Controller
   private final XboxController controller = new XboxController(OIConstants.kDriverControllerPort);
@@ -72,7 +75,8 @@ public class Robot extends TimedRobot {
     swerveDrive.zeroHeading();   
     swerveDrive.setPose(0,0,180);
     elevator.init();
-    camera = new PhotonCamera("FrontLeftCamera");    
+    camera = new PhotonCamera("FrontLeftCamera");
+    camera.getLatestResult(); // warm-up   
   }
 
   /* ROBOT PERIODIC */
@@ -82,6 +86,7 @@ public class Robot extends TimedRobot {
     elevator.periodic();
     coral.periodic();
     algae.periodic();
+    
   }
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
@@ -95,6 +100,7 @@ public class Robot extends TimedRobot {
     fieldRelative = false;
     rateLimit = false;    
     startTime = System.currentTimeMillis();
+    aligned = false;
   }
 
   /* AUTONOMOUS PERIODIC */
@@ -110,12 +116,13 @@ public class Robot extends TimedRobot {
     targetYaw = 0.0;
     targetVisible = false;      
     
+    
     // Drive forward for two seconds
     if (elapsedTime < 2000) {
       forward = 0.05; }
     
     // For the next 5 seconds rotate until you see a Reef AprilTag, then rotate and drive towards it
-    else if (elapsedTime < 7000) {      
+    else if (elapsedTime < 15000 && !aligned) {      
       largestArea = 0.0;
       var results = camera.getAllUnreadResults();
 
@@ -141,7 +148,15 @@ public class Robot extends TimedRobot {
       if (targetVisible) {
         forward = clamp(targetForwardDistance - 0.3, -0.3, 0.3, 0.05);        
         strafe = clamp(targetStrafeDistance, -0.3, 0.3, 0.05);
-        rotate = clamp(targetYaw / 30.0, -0.1, 0.1, 0.02); }}
+        rotate = clamp(targetYaw / 30.0, -0.1, 0.1, 0.02); }
+
+      aligned = Math.abs(targetForwardDistance - 0.3) < 0.05 && Math.abs(targetStrafeDistance) < 0.05 && Math.abs(targetYaw) < 3.0; }
+    
+    else if (aligned) {
+      elevator.goToCoralLevel(2);
+      coral.scoringpose(); 
+      coral.outtake();
+    }
     
     swerveDrive.drive(forward, strafe, rotate, fieldRelative, rateLimit);
   }
@@ -157,7 +172,7 @@ public class Robot extends TimedRobot {
     fieldRelative = true;
     rateLimit = false;
     CoralModeTrueAlgaeModeFalse = true;
-    elevator.motorrunning = true;
+    elevator.motorrunning = true;    
   }
 
   /* TELEOP PERIODIC */
@@ -178,7 +193,7 @@ public class Robot extends TimedRobot {
     // DPad Up - Go up a level
     if (dPad.getDPadUpPressed()) {
       elevatorlevel +=1;            
-      elevatorlevel = elevatorlevel % 5; 
+      elevatorlevel = Math.floorMod(elevatorlevel, 5); 
       if (CoralModeTrueAlgaeModeFalse) {
         elevator.goToCoralLevel(elevatorlevel); } 
       else {
@@ -186,7 +201,7 @@ public class Robot extends TimedRobot {
     // DPad Down - Go down a level
     else if (dPad.getDPadDownPressed()) {
       elevatorlevel -=1;      
-      elevatorlevel = elevatorlevel % 5; 
+      elevatorlevel = Math.floorMod(elevatorlevel, 5); 
       if (CoralModeTrueAlgaeModeFalse) {
         elevator.goToCoralLevel(elevatorlevel); } 
       else {

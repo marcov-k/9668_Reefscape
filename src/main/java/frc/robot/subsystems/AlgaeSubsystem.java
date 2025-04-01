@@ -24,7 +24,7 @@ public class AlgaeSubsystem extends SubsystemBase{
     private RelativeEncoder encoder;
     public double currentposition;
     private NetworkTableEntry NTAlgaePosition;
-    
+
     public AlgaeSubsystem(){
 
         // Algae Intake 
@@ -45,8 +45,8 @@ public class AlgaeSubsystem extends SubsystemBase{
         encoder = m_AlgaeWristSpark.getEncoder();
 
         // Initialize NetworkTable variables
-        NetworkTable ElevatorTable = NetworkTableInstance.getDefault().getTable("Elevator");
-        NTAlgaePosition = ElevatorTable.getEntry("AlgaePosition"); }
+        NetworkTable Table = NetworkTableInstance.getDefault().getTable("Algae");
+        NTAlgaePosition = Table.getEntry("WristPosition"); }
 
     public void periodic() {
         currentposition = encoder.getPosition();

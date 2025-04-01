@@ -5,6 +5,7 @@ import frc.robot.Constants.ElevatorConstants;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 // import edu.wpi.first.wpilibj.DigitalInput;
@@ -28,7 +29,9 @@ public class ElevatorSubsystem extends SubsystemBase{
     private double currentposition;
     public double elevatorspeedlimiter;
     public boolean motorrunning;
-
+    private DigitalInput ElevatorLimitSwitch;
+    private boolean isLimitPressed;
+    private boolean wasLimitPressedLastTime;
 
     public ElevatorSubsystem(){
 
@@ -47,28 +50,44 @@ public class ElevatorSubsystem extends SubsystemBase{
         // Elevator Encoder
         encoder = m_ElevatorLeftSpark.getEncoder();
 
+        // Elevator Limit Switch returns true when open, false when closed
+        ElevatorLimitSwitch = new DigitalInput(0);
+
         // Initialize NetworkTable variables
         NetworkTable ElevatorTable = NetworkTableInstance.getDefault().getTable("Elevator");
         NTElevatorPosition = ElevatorTable.getEntry("Position");
 
         motorrunning = false;
+        wasLimitPressedLastTime = false;
     }
 
     public void init() {
-        // Configure right Elevator Motor to follow left just in case this was missed at startup
+        // Configure right Elevator Motor to follow left just in case this was missed at startup        
         ElevatorConstants.followConfig.follow(m_ElevatorLeftSpark, true);
         m_ElevatorRightSpark.configure(ElevatorConstants.followConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
+
+    private double scaledSpeedToTop() {
+        return ElevatorConstants.kElevatorSpeed * Math.min(100,(ElevatorConstants.kHighestLevel - currentposition))/100; }
+    
+    private double scaledSpeedToBottom() {
+        return -ElevatorConstants.kElevatorSpeed * Math.min(100, currentposition)/100; }
+
     public void periodic() {
         currentposition = encoder.getPosition(); 
         NTElevatorPosition.setDouble(currentposition);
+        // Reset encoder position to zero when limit switch is triggered
+        isLimitPressed = !ElevatorLimitSwitch.get();
+        if (isLimitPressed && !wasLimitPressedLastTime) {
+            encoder.setPosition(0.00);}
+        wasLimitPressedLastTime = isLimitPressed;
         // Used to limit swerve drive speed based on elevator height to prevent tipping with a higher center of gravity
         elevatorspeedlimiter = (Constants.ElevatorConstants.kHighestLevel + 50 - currentposition) / ( Constants.ElevatorConstants.kHighestLevel + 50); }
 
     public void raise() {
         if (currentposition < ElevatorConstants.kHighestLevel) {
-            currentspeed = ElevatorConstants.kElevatorSpeed * Math.min(100,(ElevatorConstants.kHighestLevel - currentposition))/100;
+            currentspeed = scaledSpeedToTop();
             m_ElevatorLeftSpark.set(currentspeed);}
         else {
             m_ElevatorLeftSpark.stopMotor();}
@@ -76,7 +95,7 @@ public class ElevatorSubsystem extends SubsystemBase{
 
     public void lower() {        
         if (currentposition > ElevatorConstants.kLowestLevel) {
-            currentspeed = -ElevatorConstants.kElevatorSpeed * Math.min(100, currentposition)/100;
+            currentspeed = scaledSpeedToBottom();
             m_ElevatorLeftSpark.set(currentspeed);}
         else {
             m_ElevatorLeftSpark.stopMotor();}
@@ -86,10 +105,12 @@ public class ElevatorSubsystem extends SubsystemBase{
         m_ElevatorLeftSpark.stopMotor(); }
 
     public void goToCoralLevel(int level) {
+        if (level < 0 || level >= ElevatorConstants.corallevels.length) return;
         closedLoopController.setReference(ElevatorConstants.corallevels[level], ControlType.kPosition);
         motorrunning = false; }
 
     public void goToAlgaeLevel(int level) {
+        if (level < 0 || level >= ElevatorConstants.algaelevels.length) return;
         closedLoopController.setReference(ElevatorConstants.algaelevels[level], ControlType.kPosition);
         motorrunning = false; }
 

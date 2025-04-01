@@ -33,7 +33,7 @@ public class CoralSubsystem extends SubsystemBase{
 
         // Wrist Motor         
         m_CoralWristSpark = new SparkMax(CoralConstants.kWristCanID, MotorType.kBrushless);   
-        m_CoralWristSpark.configure(CoralConstants.wrist, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        m_CoralWristSpark.configure(CoralConstants.wrist, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);        
 
         // PID Controller
         CoralClosedLoopController = m_CoralWristSpark.getClosedLoopController();
@@ -42,8 +42,8 @@ public class CoralSubsystem extends SubsystemBase{
         encoder = m_CoralWristSpark.getEncoder();
         
         // Initialize NetworkTable variables
-        NetworkTable ElevatorTable = NetworkTableInstance.getDefault().getTable("Elevator");
-        NTCoralPosition = ElevatorTable.getEntry("CoralPosition"); }
+        NetworkTable Table = NetworkTableInstance.getDefault().getTable("Coral");
+        NTCoralPosition = Table.getEntry("WristPosition"); }
 
     public void periodic() {
         currentposition = encoder.getPosition();
