@@ -20,16 +20,10 @@ public class CoralSubsystem extends SubsystemBase{
 
     private final SparkMax m_CoralLeftSpark; 
     private final SparkMax m_CoralWristSpark; 
-    
     private SparkClosedLoopController CoralClosedLoopController;
     private RelativeEncoder encoder;
-
-    
-    // NetworkTable Entries for Position
     private NetworkTableEntry NTCoralPosition;
-
-
-    public boolean unfolded;
+    public double currentposition;
 
     public CoralSubsystem(){
 
@@ -46,63 +40,49 @@ public class CoralSubsystem extends SubsystemBase{
     
         // Coral Encoder
         encoder = m_CoralWristSpark.getEncoder();
-
-        unfolded = false;
-
         
         // Initialize NetworkTable variables
         NetworkTable ElevatorTable = NetworkTableInstance.getDefault().getTable("Elevator");
+        NTCoralPosition = ElevatorTable.getEntry("CoralPosition"); }
 
-        NTCoralPosition = ElevatorTable.getEntry("CoralPosition");
-    }
-
-    public double getPosition() {
-        // Right now I'm assuming we'll start by using the left SparkMax motor encoder to determine position, but we might want to add something 
-        // like a linear magnetic encoder or string potentiometer for more accuracy. 
-        return encoder.getPosition();
-    }
+    public void periodic() {
+        currentposition = encoder.getPosition();
+        NTCoralPosition.setDouble(currentposition);}
 
     public void intake() {
-        m_CoralLeftSpark.set(-CoralConstants.kCoralSpeed);
-    }
+        m_CoralLeftSpark.set(-CoralConstants.kCoralSpeed);}
 
     public void stop() {
-        m_CoralLeftSpark.stopMotor();
-    }
+        m_CoralLeftSpark.stopMotor();}
 
     public void outtake() {        
-        m_CoralLeftSpark.set(CoralConstants.kCoralSpeed);
-    }
+        m_CoralLeftSpark.set(CoralConstants.kCoralSpeed);}
 
-    public void wristraise() {        
-        NTCoralPosition.setDouble(encoder.getPosition());
-        m_CoralWristSpark.set(-CoralConstants.kCoralWristSpeed);
-    }
+    public void wristraise() {  
+        m_CoralWristSpark.set(-CoralConstants.kCoralWristSpeed);}
 
     public void wriststop() {
-        m_CoralWristSpark.stopMotor();
-    }
+        m_CoralWristSpark.stopMotor();}
 
-    public void wristlower() {        
-        NTCoralPosition.setDouble(encoder.getPosition());
-        m_CoralWristSpark.set(CoralConstants.kCoralWristSpeed);
-    }
+    public void wristlower() {                
+        m_CoralWristSpark.set(CoralConstants.kCoralWristSpeed);}
 
     public void fold() {
-        CoralClosedLoopController.setReference(0.0,  ControlType.kPosition);            
-    }
+        CoralClosedLoopController.setReference(0.0,  ControlType.kPosition);}
     
     public void unfold() {
-        CoralClosedLoopController.setReference(20, ControlType.kPosition);
-    }
+        CoralClosedLoopController.setReference(20, ControlType.kPosition);}
+
+    public void scoringpose() {
+        CoralClosedLoopController.setReference(30, ControlType.kPosition);}
+
+    public void intakepose() {
+        CoralClosedLoopController.setReference(10, ControlType.kPosition);}    
 
     public void auto() {
-        CoralClosedLoopController.setReference(20,  ControlType.kPosition); 
-    }
+        CoralClosedLoopController.setReference(20,  ControlType.kPosition); }
 
     public void init() {
-        encoder.setPosition(0);
-        unfolded = false;
-    }
+        encoder.setPosition(0);}
 
 }

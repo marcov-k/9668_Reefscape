@@ -5,10 +5,10 @@
 package frc.robot;
 
 import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonUtils;
-
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.OIConstants;
@@ -21,40 +21,48 @@ import frc.robot.subsystems.DPadHelper;
 
 public class Robot extends TimedRobot {
 
-  // Auto time  
+  // Time  
   long elapsedTime;
-  long autonomousDuration = 15000;
   long startTime;
 
-  // Drive command variables
+  // Swerve Drive 
   Double strafe;
   Double forward;
   Double rotate;
   boolean fieldRelative;
   boolean rateLimit;
 
-  // Elevator variables
+  // Elevator 
   Integer elevatorlevel;
   boolean CoralModeTrueAlgaeModeFalse;
 
-  // The robot's subsystems
+  // Subsystems
   private final DriveSubsystem swerveDrive = new DriveSubsystem();
   private final ElevatorSubsystem elevator = new ElevatorSubsystem();
   private final CoralSubsystem coral = new CoralSubsystem();
   private final AlgaeSubsystem algae = new AlgaeSubsystem();
 
   // PhotonVision 
-  PhotonCamera camera = new PhotonCamera("FrontLeftCamera");
-  boolean targetVisible;
-  double targetYaw;
+  PhotonCamera camera;
+  boolean targetVisible;  
   int tagid;
   int bestTarget;
   double largestArea;
-  double targetRange;
+  Transform3d targetTransform;
+  Translation3d targetTranslation;
+  Rotation3d targetRotation;
+  double targetForwardDistance;
+  double targetStrafeDistance;
+  double targetYaw;
 
-  // The driver's controller
+  // Controller
   private final XboxController controller = new XboxController(OIConstants.kDriverControllerPort);
   DPadHelper dPad = new DPadHelper(controller);
+
+  private double clamp(double value, double min, double max, double deadband) {
+    if (Math.abs(value) < deadband) return 0;
+    else return Math.max(min, Math.min(max, value)); }
+  
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
   
@@ -63,7 +71,8 @@ public class Robot extends TimedRobot {
   public void robotInit() { 
     swerveDrive.zeroHeading();   
     swerveDrive.setPose(0,0,180);
-    elevator.init();    
+    elevator.init();
+    camera = new PhotonCamera("FrontLeftCamera");    
   }
 
   /* ROBOT PERIODIC */
@@ -71,6 +80,8 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     swerveDrive.periodic();
     elevator.periodic();
+    coral.periodic();
+    algae.periodic();
   }
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
@@ -89,13 +100,15 @@ public class Robot extends TimedRobot {
   /* AUTONOMOUS PERIODIC */
   @Override
   public void autonomousPeriodic() {
-
+    // Initialize Variables 
+    elapsedTime = System.currentTimeMillis() - startTime;
     forward = 0.0;
     strafe = 0.0;
     rotate = 0.0; 
+    targetForwardDistance = 0.0;
+    targetStrafeDistance = 0.0;
     targetYaw = 0.0;
-    targetRange = 0.0;
-    elapsedTime = System.currentTimeMillis() - startTime;
+    targetVisible = false;      
     
     // Drive forward for two seconds
     if (elapsedTime < 2000) {
@@ -103,32 +116,32 @@ public class Robot extends TimedRobot {
     
     // For the next 5 seconds rotate until you see a Reef AprilTag, then rotate and drive towards it
     else if (elapsedTime < 7000) {      
-      targetVisible = false;      
       largestArea = 0.0;
-      forward = 0.0;
-      rotate = 0.0;
       var results = camera.getAllUnreadResults();
 
       if (!results.isEmpty()){
-        // Get the most recent frame
         var result = results.get(results.size() - 1);
         if (result.hasTargets()) {
-            // At least one AprilTag was seen by the camera
             for (var target : result.getTargets()) {
                 tagid = target.getFiducialId();
                 // If the tag is a reef tag
                 if ((tagid > 6 && tagid < 11) || (tagid > 17 && tagid < 21)) {
-                  // Find the closest reef tag (takes up the largest area of screen)
+                  // Find the closest reef tag (based on largest area of frame) and capture Yaw and Range
                   if (target.getArea() > largestArea) {
                     largestArea = target.getArea();
                     bestTarget = tagid;
-                    targetYaw = target.getYaw();
-                    targetRange = PhotonUtils.calculateDistanceToTargetMeters(Constants.PhotonVisionConstants.kCameraHeight, Constants.PhotonVisionConstants.kReefAprilTagHeight, Units.degreesToRadians(0.0), Units.degreesToRadians(target.getPitch()));
+                    targetTransform = target.getBestCameraToTarget();
+                    targetTranslation = targetTransform.getTranslation();
+                    targetRotation = targetTransform.getRotation();
+                    targetForwardDistance = targetTranslation.getZ();
+                    targetStrafeDistance = targetTranslation.getX();
+                    targetYaw = Math.toDegrees(targetRotation.getZ());
                     targetVisible = true;}}}}}
 
       if (targetVisible) {
-        // forward = (targetRange - Constants.PhotonVisionConstants.kReefAprilTagDistance) * 0.03;
-        rotate = targetYaw / 15; }}
+        forward = clamp(targetForwardDistance - 0.3, -0.3, 0.3, 0.05);        
+        strafe = clamp(targetStrafeDistance, -0.3, 0.3, 0.05);
+        rotate = clamp(targetYaw / 30.0, -0.1, 0.1, 0.02); }}
     
     swerveDrive.drive(forward, strafe, rotate, fieldRelative, rateLimit);
   }
@@ -196,6 +209,13 @@ public class Robot extends TimedRobot {
     else {
       coral.wriststop(); }
 
+    // Bumpers - manually control Algae Wrist
+    if (controller.getRightBumperButton()) {
+      algae.wristraise(); } 
+    else if (controller.getLeftBumperButton()) {
+      algae.wristlower(); } 
+    else {
+      algae.wriststop(); }
 
     // Triggers - control intake and outtake
     if (controller.getRightTriggerAxis() > 0.05) {  
@@ -211,16 +231,6 @@ public class Robot extends TimedRobot {
     else {
       algae.stop();
       coral.stop(); }
-
-
-    // Bumpers - manually control Algae Wrist
-    if (controller.getRightBumperButton()) {
-      algae.wristraise(); } 
-    else if (controller.getLeftBumperButton()) {
-      algae.wristlower(); } 
-    else {
-      algae.wriststop(); }
-    
     
     // Back button - Zero Heading
     if (controller.getBackButtonPressed()) {

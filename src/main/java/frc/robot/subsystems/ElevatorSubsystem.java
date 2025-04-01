@@ -62,10 +62,9 @@ public class ElevatorSubsystem extends SubsystemBase{
 
     public void periodic() {
         currentposition = encoder.getPosition(); 
+        NTElevatorPosition.setDouble(currentposition);
         // Used to limit swerve drive speed based on elevator height to prevent tipping with a higher center of gravity
-        elevatorspeedlimiter = (Constants.ElevatorConstants.kHighestLevel + 50 - currentposition) / ( Constants.ElevatorConstants.kHighestLevel + 50);   
-        NTElevatorPosition.setDouble(currentposition);    
-    }
+        elevatorspeedlimiter = (Constants.ElevatorConstants.kHighestLevel + 50 - currentposition) / ( Constants.ElevatorConstants.kHighestLevel + 50); }
 
     public void raise() {
         if (currentposition < ElevatorConstants.kHighestLevel) {
@@ -73,8 +72,7 @@ public class ElevatorSubsystem extends SubsystemBase{
             m_ElevatorLeftSpark.set(currentspeed);}
         else {
             m_ElevatorLeftSpark.stopMotor();}
-        motorrunning = true;
-    }
+        motorrunning = true; }
 
     public void lower() {        
         if (currentposition > ElevatorConstants.kLowestLevel) {
@@ -82,20 +80,17 @@ public class ElevatorSubsystem extends SubsystemBase{
             m_ElevatorLeftSpark.set(currentspeed);}
         else {
             m_ElevatorLeftSpark.stopMotor();}
-        motorrunning = true;
-    }
+        motorrunning = true; }
 
     public void stop() {
-        m_ElevatorLeftSpark.stopMotor();    
-    }
+        m_ElevatorLeftSpark.stopMotor(); }
 
     public void goToCoralLevel(int level) {
         closedLoopController.setReference(ElevatorConstants.corallevels[level], ControlType.kPosition);
-        motorrunning = false;
-    }
+        motorrunning = false; }
+
     public void goToAlgaeLevel(int level) {
         closedLoopController.setReference(ElevatorConstants.algaelevels[level], ControlType.kPosition);
-        motorrunning = false;
-    }
+        motorrunning = false; }
 
 }
