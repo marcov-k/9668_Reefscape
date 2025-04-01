@@ -45,7 +45,7 @@ public class AlgaeSubsystem extends SubsystemBase{
         m_AlgaeWristSpark.configure(AlgaeConstants.AlgaeWrist, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // PID Controller
-        AlgaeClosedLoopController = m_AlgaeLeftSpark.getClosedLoopController();
+        AlgaeClosedLoopController = m_AlgaeWristSpark.getClosedLoopController();
     
         // Algae Encoder
         encoder = m_AlgaeWristSpark.getEncoder();
@@ -91,24 +91,12 @@ public class AlgaeSubsystem extends SubsystemBase{
         m_AlgaeWristSpark.set(AlgaeConstants.kAlgaeWristSpeed);
     }
 
-    public void outtakeprecise() {
-        AlgaeClosedLoopController.setReference(2.0,  ControlType.kPosition);            
+    public void fold() {
+        AlgaeClosedLoopController.setReference(0.0,  ControlType.kPosition);            
     }
     
     public void unfold() {
-        
-        NTAlgaePosition.setDouble(encoder.getPosition());
-        if (encoder.getPosition() < 5) {
-            wristlower();
-        }
-        else if (encoder.getPosition() < 10) {
-            wristlower();
-            partiallyunfolded = true;
-        }
-        else if (encoder.getPosition() > 35) {
-            unfolded = true;
-            wriststop();
-        }           
+        AlgaeClosedLoopController.setReference(35, ControlType.kPosition);
     }
 
     public void init() {

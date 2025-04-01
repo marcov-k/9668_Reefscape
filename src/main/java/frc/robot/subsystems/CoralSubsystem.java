@@ -21,7 +21,7 @@ public class CoralSubsystem extends SubsystemBase{
     private final SparkMax m_CoralLeftSpark; 
     private final SparkMax m_CoralWristSpark; 
     
-    private SparkClosedLoopController coralClosedLoopController;
+    private SparkClosedLoopController CoralClosedLoopController;
     private RelativeEncoder encoder;
 
     
@@ -42,7 +42,7 @@ public class CoralSubsystem extends SubsystemBase{
         m_CoralWristSpark.configure(CoralConstants.wrist, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // PID Controller
-        coralClosedLoopController = m_CoralWristSpark.getClosedLoopController();
+        CoralClosedLoopController = m_CoralWristSpark.getClosedLoopController();
     
         // Coral Encoder
         encoder = m_CoralWristSpark.getEncoder();
@@ -88,27 +88,21 @@ public class CoralSubsystem extends SubsystemBase{
         m_CoralWristSpark.set(CoralConstants.kCoralWristSpeed);
     }
 
-    public void outtakeprecise() {
-        coralClosedLoopController.setReference(2.0,  ControlType.kPosition);            
+    public void fold() {
+        CoralClosedLoopController.setReference(0.0,  ControlType.kPosition);            
     }
     
     public void unfold() {
-        NTCoralPosition.setDouble(encoder.getPosition());
-        if (encoder.getPosition() > -60) {
-            wristraise();
-        }
-        else if (encoder.getPosition() < -60) {
-            wriststop();
-            unfolded = true;
-        }           
+        CoralClosedLoopController.setReference(20, ControlType.kPosition);
     }
 
     public void auto() {
-        coralClosedLoopController.setReference(20,  ControlType.kPosition); 
+        CoralClosedLoopController.setReference(20,  ControlType.kPosition); 
     }
 
     public void init() {
         encoder.setPosition(0);
+        unfolded = false;
     }
 
 }

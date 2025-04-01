@@ -140,20 +140,11 @@ public final class Constants {
     // Height of each level, defined in motor rotations  
     // NEED TO TEST AND ADJUST THESE VALUES
 
-    public static final double[] levels = {0, 20, 38, 110, 240};
+    public static final double[] corallevels = {10, 20, 38, 110, 220};
+    public static final double[] algaelevels = {10, 25, 50, 110, 220};
 
     public static final double kLowestLevel = 0.0;
     public static final double kHighestLevel = 245.0;
-
-    public static final double kCoralLevel1 = 3.0 * 260 / 42;
-    public static final double kCoralLevel2 = 16.0 * 260 / 42;
-    public static final double kCoralLevel3 = 29.0 * 260 / 42;
-    public static final double kCoralLevel4 = 42.0 * 260 /42;
-
-    public static final double kIntakeLevel = 20.0 * 260 / 42;
-
-    public static final double kAlgaeLevel1 = 20.0 * 260 / 42;
-    public static final double kAlgaeLevel2 = 35.0 * 260 / 42;
 
     public static final SparkFlexConfig leadConfig = new SparkFlexConfig();
     public static final SparkFlexConfig followConfig = new SparkFlexConfig();
@@ -164,10 +155,11 @@ public final class Constants {
 
             leadConfig.smartCurrentLimit(50);
             leadConfig.idleMode(IdleMode.kBrake);  
-            leadConfig.openLoopRampRate(2.0);      
+            leadConfig.openLoopRampRate(2.0);   
+            leadConfig.closedLoopRampRate(2.0);   
         
             leadConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
-            leadConfig.closedLoop.pid(0.6, 0, 0);
+            leadConfig.closedLoop.pid(0.1, 0, 0);
             leadConfig.closedLoop.outputRange(-1,1);
             
         
@@ -202,7 +194,8 @@ public final class Constants {
         
             wrist  
                     .smartCurrentLimit(50)
-                    .idleMode(IdleMode.kBrake);
+                    .idleMode(IdleMode.kBrake)
+                    .closedLoopRampRate(1.0);
 
             wrist.closedLoop 
                     .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
@@ -242,7 +235,8 @@ public final class Constants {
             
                 AlgaeWrist  
                         .smartCurrentLimit(50)
-                        .idleMode(IdleMode.kBrake);
+                        .idleMode(IdleMode.kBrake)
+                        .closedLoopRampRate(1.0);
     
                 AlgaeWrist.closedLoop 
                         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
@@ -258,8 +252,8 @@ public final class Constants {
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
     public static final double kDriveDeadband = 0.02;
-    public static final double kDriverSpeedLimit = 0.90; // max forward speed
-    public static final double kDriverRotationLimit = 0.80; // max rotational speed
+    public static final double kDriverSpeedLimit = 0.50; // max forward speed
+    public static final double kDriverRotationLimit = 0.30; // max rotational speed
   }
 
   public static final class AutoConstants {
@@ -280,4 +274,11 @@ public final class Constants {
   public static final class NeoMotorConstants {
     public static final double kFreeSpeedRpm = 5676;
   }
+
+  public static final class PhotonVisionConstants {
+    public static final double kCameraHeight = 0.5; // Measured with a tape measure in meters
+    public static final double kReefAprilTagDistance = 0.25;
+    public static final double kReefAprilTagHeight = 0.2;
+  }
+
 }
