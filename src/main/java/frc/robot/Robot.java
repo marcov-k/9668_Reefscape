@@ -40,6 +40,7 @@ public class Robot extends TimedRobot {
   boolean humandriver;
   Integer elevatorlevel;
   boolean autonomousunfolding;
+  boolean CoralModeTrueAlgaeModeFalse;
 
   // The robot's subsystems
   private final DriveSubsystem swerveDrive = new DriveSubsystem();
@@ -48,7 +49,7 @@ public class Robot extends TimedRobot {
   private final AlgaeSubsystem algae = new AlgaeSubsystem();
 
   // PhotonVision 
-  PhotonCamera camera = new PhotonCamera("photonvision");
+  PhotonCamera camera = new PhotonCamera("FrontLeftCamera");
   boolean targetVisible;
   double targetYaw;
   int tagid;
@@ -79,6 +80,16 @@ public class Robot extends TimedRobot {
     public boolean getDPadDownPressed() {
         int current = controller.getPOV();
         return current == 180 && lastPOV != 180;
+    }
+
+    public boolean getDPadLeftPressed() {
+      int current = controller.getPOV();
+      return current == 270 && lastPOV != 270;
+    }
+  
+    public boolean getDPadRightPressed() {
+      int current = controller.getPOV();
+      return current == 90 && lastPOV != 90;
     }
 
     // Call at end of periodic loop to lock in current state
@@ -138,19 +149,20 @@ public class Robot extends TimedRobot {
     forward = 0.0;
     strafe = 0.0;
     rotate = 0.0; 
-
+    targetYaw = 0.0;
+    targetRange = 0.0;
     elapsedTime = System.currentTimeMillis() - startTime;
     
     // Drive forward for two seconds
     if (elapsedTime < 2000) {
-      forward = 0.2;
+      forward = 0.05;
     }
     // For the next 5 seconds rotate until you see a Reef AprilTag, then rotate and drive towards it
     else if (elapsedTime < 7000) {      
-      targetVisible = false;
-      targetYaw = 0.0;
-      targetRange = 0.0;
+      targetVisible = false;      
       largestArea = 0.0;
+      forward = 0.0;
+      rotate = 0.0;
       var results = camera.getAllUnreadResults();
 
       if (!results.isEmpty()){
@@ -167,7 +179,7 @@ public class Robot extends TimedRobot {
                     largestArea = target.getArea();
                     bestTarget = tagid;
                     targetYaw = target.getYaw();
-                    targetRange = PhotonUtils.calculateDistanceToTargetMeters(Constants.PhotonVisionConstants.kCameraHeight, Constants.PhotonVisionConstants.kReefAprilTagHeight, Units.degreesToRadians(-30.0), Units.degreesToRadians(target.getPitch()));
+                    targetRange = PhotonUtils.calculateDistanceToTargetMeters(Constants.PhotonVisionConstants.kCameraHeight, Constants.PhotonVisionConstants.kReefAprilTagHeight, Units.degreesToRadians(0.0), Units.degreesToRadians(target.getPitch()));
                     targetVisible = true;
                   }
                   
@@ -178,8 +190,11 @@ public class Robot extends TimedRobot {
 
       }
 
-      rotate = targetYaw * Constants.DriveConstants.kMaxAngularSpeed * 0.2;
-      forward = (targetRange - Constants.PhotonVisionConstants.kReefAprilTagDistance) * 0.2;
+      if (targetVisible) {
+        rotate = targetYaw / 15;
+        // forward = (targetRange - Constants.PhotonVisionConstants.kReefAprilTagDistance) * 0.03;
+      }
+      
 
     }
     
@@ -281,11 +296,21 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void testInit() {}
+  public void testInit() {
+    elevatorlevel = 0;
+  }
 
   @Override
   public void testPeriodic() {
-     
+    
+    // DPad Left and Right - Select Coral Mode (Left) or Algae Mode (Right)
+    if (dPad.getDPadLeftPressed()) {
+      CoralModeTrueAlgaeModeFalse = true;
+    }
+    else if (dPad.getDPadRightPressed()) {
+      CoralModeTrueAlgaeModeFalse = false;
+    }
+
     // DPad Up and Down - control elevator
     if (dPad.getDPadUpPressed()) {
       elevatorlevel +=1;
@@ -296,8 +321,26 @@ public class Robot extends TimedRobot {
       elevator.levelchanged = true;
     }
     dPad.finalizeUpdate();
+
     elevatorlevel = elevatorlevel % 5;
-    elevator.goToLevel(elevatorlevel);    
+    
+    if (CoralModeTrueAlgaeModeFalse && elevator.levelchanged) {
+      elevator.goToCoralLevel(elevatorlevel);
+    }
+    else {
+      elevator.goToAlgaeLevel(elevatorlevel);
+    } 
+
+    // A and Y Button - control elevator
+    if (controller.getAButton()) {         
+      elevator.lower();  
+      elevator.levelchanged = false;
+    } else if (controller.getYButton()) { 
+      elevator.raise();   
+      elevator.levelchanged = false;
+    } else if (elevator.levelchanged = false) {
+      elevator.stop();
+    }
 
 
   }
