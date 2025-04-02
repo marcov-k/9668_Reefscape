@@ -54,14 +54,14 @@ public class CoralSubsystem extends SubsystemBase{
             // Coral Mode Elevator Levels are 0-Stow, 1-CoralIntake, 2-L1, 3-L2, 4-L3, 5-L4
             // Coral Wrist Levels are 0-Stow, 1-CoralIntake, 2-L1-3Score, 3-L4Score
             if (elevatorlevel == 0){
-                goToPosition(CoralConstants.corallevels[0]);} // Stow
+                goToPosition(CoralConstants.coralwristlevels[0]);} // Stow
             else if (elevatorlevel == 1){
-                goToPosition(CoralConstants.corallevels[1]);} // CoralIntake
+                goToPosition(CoralConstants.coralwristlevels[1]);} // CoralIntake
             else if (elevatorlevel == 5){
                 L4Scoring = true;
-                goToPosition(CoralConstants.corallevels[3]);} // L4 Score
+                goToPosition(CoralConstants.coralwristlevels[3]);} // L4 Score
             else {
-                goToPosition(CoralConstants.corallevels[2]);}}} // L1-L3 Score
+                goToPosition(CoralConstants.coralwristlevels[2]);}}} // L1-L3 Score
 
     public void intake() {
         m_CoralLeftSpark.set(CoralConstants.kCoralSpeed);}
@@ -86,16 +86,27 @@ public class CoralSubsystem extends SubsystemBase{
         m_CoralWristSpark.set(CoralConstants.kCoralWristSpeed);}
 
     public void fold() {
-        goToPosition(CoralConstants.corallevels[0]);}
+        goToPosition(CoralConstants.coralwristlevels[0]);}
     
-    public void unfold() {
-        goToPosition(CoralConstants.corallevels[1]);}
+    public void unfold(int elevatorlevel) {
+        L4Scoring = false;
+        // Coral Mode Elevator Levels are 0-Stow, 1-CoralIntake, 2-L1, 3-L2, 4-L3, 5-L4
+        // Coral Wrist Levels are 0-Stow, 1-CoralIntake, 2-L1-3Score, 3-L4Score
+        if (elevatorlevel == 0){
+            goToPosition(CoralConstants.coralwristlevels[0]);} // Stow
+        else if (elevatorlevel == 1){
+            goToPosition(CoralConstants.coralwristlevels[1]);} // CoralIntake
+        else if (elevatorlevel == 5){
+            L4Scoring = true;
+            goToPosition(CoralConstants.coralwristlevels[3]);} // L4 Score
+        else {
+            goToPosition(CoralConstants.coralwristlevels[2]);}} // L1-L3 Score
 
     public void scoringpose() {
-        goToPosition(CoralConstants.corallevels[2]);}
+        goToPosition(CoralConstants.coralwristlevels[2]);} // L1-L3 Score
 
     public void intakepose() {
-        goToPosition(CoralConstants.corallevels[1]);}    
+        goToPosition(CoralConstants.coralwristlevels[1]);} // CoralIntake   
 
     public void init() {
         encoder.setPosition(0);}

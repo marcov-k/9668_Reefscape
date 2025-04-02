@@ -1,11 +1,8 @@
 package frc.robot.subsystems;
-
 import frc.robot.Constants.AlgaeConstants;
-import frc.robot.Constants.CoralConstants;
 import frc.utils.Common;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -55,11 +52,11 @@ public class AlgaeSubsystem extends SubsystemBase{
             // Algae Mode Elevator Levels are 0-Stow, 1-GroundIntake, 2-AlgaeProcessor, 3-L2, 4-L3, 5-Max
             // Algae Wrist Levels are 0-Stowed, 1-Unfolded, 2-Aim for Barge
             if (elevatorlevel == 0)
-                goToPosition(AlgaeConstants.algaelevels[0]); // Stow
+                goToPosition(AlgaeConstants.algaewristlevels[0]); // Stow
             else if (elevatorlevel == 5)
-                goToPosition(AlgaeConstants.algaelevels[2]); // Shoot at Barge
+                goToPosition(AlgaeConstants.algaewristlevels[2]); // Shoot at Barge
             else
-                goToPosition(CoralConstants.corallevels[1]);}} // AlgaeIntake
+                goToPosition(AlgaeConstants.algaewristlevels[1]);}} // AlgaeIntake
             
 
     public void intake() {
@@ -83,10 +80,10 @@ public class AlgaeSubsystem extends SubsystemBase{
         m_AlgaeWristSpark.set(AlgaeConstants.kAlgaeWristSpeed);}
 
     public void fold() {
-        goToPosition(AlgaeConstants.algaelevels[0]);}
+        goToPosition(AlgaeConstants.algaewristlevels[0]);}
     
     public void unfold() {
-        goToPosition(CoralConstants.corallevels[1]);}
+        goToPosition(AlgaeConstants.algaewristlevels[1]);}
 
     public void init() {
         encoder.setPosition(0);}
