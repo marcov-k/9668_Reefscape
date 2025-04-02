@@ -177,13 +177,13 @@ public class Robot extends TimedRobot {
     // DPad Left - Select Coral Mode 
     if (dPad.getDPadLeftPressed()) {
       CoralMode = true;      
-      //coral.unfold();
+      coral.unfold(elevator.level);
       //algae.fold();
       }
     // DPad Right - Select Algae Mode 
     else if (dPad.getDPadRightPressed()) {
       CoralMode = false; 
-      //coral.fold();
+      coral.fold();
       //algae.unfold();
       }
 
