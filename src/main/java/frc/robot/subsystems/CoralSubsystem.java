@@ -1,15 +1,14 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants.CoralConstants;
+import frc.utils.Common;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkClosedLoopController;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -20,10 +19,13 @@ public class CoralSubsystem extends SubsystemBase{
 
     private final SparkMax m_CoralLeftSpark; 
     private final SparkMax m_CoralWristSpark; 
-    private SparkClosedLoopController CoralClosedLoopController;
+    
     private RelativeEncoder encoder;
     private NetworkTableEntry NTCoralPosition;
     public double currentposition;
+    public boolean manualcontrol;
+    private double previousp;
+    private boolean L4Scoring;
 
     public CoralSubsystem(){
 
@@ -35,9 +37,6 @@ public class CoralSubsystem extends SubsystemBase{
         m_CoralWristSpark = new SparkMax(CoralConstants.kWristCanID, MotorType.kBrushless);   
         m_CoralWristSpark.configure(CoralConstants.wrist, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);        
 
-        // PID Controller
-        CoralClosedLoopController = m_CoralWristSpark.getClosedLoopController();
-    
         // Coral Encoder
         encoder = m_CoralWristSpark.getEncoder();
         
@@ -45,44 +44,74 @@ public class CoralSubsystem extends SubsystemBase{
         NetworkTable Table = NetworkTableInstance.getDefault().getTable("Coral");
         NTCoralPosition = Table.getEntry("WristPosition"); }
 
-    public void periodic() {
+    public void robotPeriodic() {
         currentposition = encoder.getPosition();
         NTCoralPosition.setDouble(currentposition);}
 
+    public void teleopPeriodic(boolean CoralMode, int elevatorlevel) {
+        if (!manualcontrol && CoralMode) {
+            L4Scoring = false;
+            // Coral Mode Elevator Levels are 0-Stow, 1-CoralIntake, 2-L1, 3-L2, 4-L3, 5-L4
+            // Coral Wrist Levels are 0-Stow, 1-CoralIntake, 2-L1-3Score, 3-L4Score
+            if (elevatorlevel == 0){
+                goToPosition(CoralConstants.corallevels[0]);} // Stow
+            else if (elevatorlevel == 1){
+                goToPosition(CoralConstants.corallevels[1]);} // CoralIntake
+            else if (elevatorlevel == 5){
+                L4Scoring = true;
+                goToPosition(CoralConstants.corallevels[3]);} // L4 Score
+            else {
+                goToPosition(CoralConstants.corallevels[2]);}}} // L1-L3 Score
+
     public void intake() {
-        m_CoralLeftSpark.set(-CoralConstants.kCoralSpeed);}
+        m_CoralLeftSpark.set(CoralConstants.kCoralSpeed);}
 
     public void stop() {
         m_CoralLeftSpark.stopMotor();}
 
-    public void outtake() {        
-        m_CoralLeftSpark.set(CoralConstants.kCoralSpeed);}
+    public void outtake() { 
+        m_CoralLeftSpark.set(-CoralConstants.kCoralSpeed);
+        if (L4Scoring){
+            goToPosition(14);}} // On an L4 Score, shoot while lifting the wrist from 30 to 14 to help knock it on there
 
     public void wristraise() {  
+        manualcontrol = true;
         m_CoralWristSpark.set(-CoralConstants.kCoralWristSpeed);}
 
-    public void wriststop() {
+    public void wriststop() {        
         m_CoralWristSpark.stopMotor();}
 
     public void wristlower() {                
+        manualcontrol = true;
         m_CoralWristSpark.set(CoralConstants.kCoralWristSpeed);}
 
     public void fold() {
-        CoralClosedLoopController.setReference(0.0,  ControlType.kPosition);}
+        goToPosition(CoralConstants.corallevels[0]);}
     
     public void unfold() {
-        CoralClosedLoopController.setReference(20, ControlType.kPosition);}
+        goToPosition(CoralConstants.corallevels[1]);}
 
     public void scoringpose() {
-        CoralClosedLoopController.setReference(30, ControlType.kPosition);}
+        goToPosition(CoralConstants.corallevels[2]);}
 
     public void intakepose() {
-        CoralClosedLoopController.setReference(10, ControlType.kPosition);}    
-
-    public void auto() {
-        CoralClosedLoopController.setReference(20,  ControlType.kPosition); }
+        goToPosition(CoralConstants.corallevels[1]);}    
 
     public void init() {
         encoder.setPosition(0);}
+
+    private void goToPosition(double targetposition) {
+        currentposition = encoder.getPosition();
+        double error = (targetposition - currentposition) / Math.max(Math.abs(targetposition), 1.0);   
+        error = Common.clamp(error, -1.0, 1.0, 0.01);
+        double p = error * 0.6;  // PID - This is proportional
+        double d = (p - previousp) * 0.2;
+        double speed = p + d; 
+        if (Math.abs(targetposition - currentposition) < 0.5) {  // If close enough to target, stop, otherwise set speed
+            previousp = 0; 
+            m_CoralWristSpark.stopMotor();        }
+        else {
+            previousp = p;
+            m_CoralWristSpark.set(speed);}}
 
 }

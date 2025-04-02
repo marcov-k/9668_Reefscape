@@ -17,7 +17,7 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.DPadHelper;
-
+import frc.utils.Common;
 
 
 
@@ -36,7 +36,7 @@ public class Robot extends TimedRobot {
 
   // Elevator 
   Integer elevatorlevel;
-  boolean CoralModeTrueAlgaeModeFalse;
+  boolean CoralMode;
 
   // Subsystems
   private final DriveSubsystem swerveDrive = new DriveSubsystem();
@@ -62,14 +62,6 @@ public class Robot extends TimedRobot {
   private final XboxController controller = new XboxController(OIConstants.kDriverControllerPort);
   DPadHelper dPad = new DPadHelper(controller);
 
-  private double clamp(double value, double min, double max, double deadband) {
-    if (Math.abs(value) < deadband) return 0;
-    else return Math.max(min, Math.min(max, value)); }
-
-  private int clamp(int value, int min, int max) {
-    return Math.max(min, Math.min(max, value));
-  }
-  
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
   
@@ -87,9 +79,9 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     swerveDrive.periodic();
-    elevator.periodic();
-    coral.periodic();
-    algae.periodic();
+    elevator.robotPeriodic();
+    coral.robotPeriodic();
+    algae.robotPeriodic();
   }
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
@@ -149,9 +141,9 @@ public class Robot extends TimedRobot {
                     targetVisible = true;}}}}}
 
       if (targetVisible) {
-        forward = clamp(targetForwardDistance - 0.3, -0.3, 0.3, 0.05);        
-        strafe = clamp(targetStrafeDistance, -0.3, 0.3, 0.05);
-        rotate = clamp(targetYaw / 30.0, -0.1, 0.1, 0.02); }
+        forward = Common.clamp(targetForwardDistance - 0.3, -0.3, 0.3, 0.05);        
+        strafe = Common.clamp(targetStrafeDistance, -0.3, 0.3, 0.05);
+        rotate = Common.clamp(targetYaw / 30.0, -0.1, 0.1, 0.02); }
 
       aligned = Math.abs(targetForwardDistance - 0.3) < 0.05 && Math.abs(targetStrafeDistance) < 0.05 && Math.abs(targetYaw) < 3.0; }
     
@@ -168,14 +160,14 @@ public class Robot extends TimedRobot {
 
   /* TELEOP INIT */
   @Override
-  public void teleopInit() {
-    // Initially using field relative with rate limits
+  public void teleopInit() {    
     elevator.init();
-    elevatorlevel = 0;
     fieldRelative = true;
     rateLimit = false;
-    CoralModeTrueAlgaeModeFalse = false;
-    elevator.motorrunning = true;    
+    CoralMode = true;  
+    elevator.manualcontrol = true;
+    coral.manualcontrol = true;
+    algae.manualcontrol = true;
   }
 
   /* TELEOP PERIODIC */
@@ -184,27 +176,31 @@ public class Robot extends TimedRobot {
     
     // DPad Left - Select Coral Mode 
     if (dPad.getDPadLeftPressed()) {
-      CoralModeTrueAlgaeModeFalse = true;
-      //algae.fold();
+      CoralMode = true;      
       //coral.unfold();
+      //algae.fold();
       }
     // DPad Right - Select Algae Mode 
     else if (dPad.getDPadRightPressed()) {
-      CoralModeTrueAlgaeModeFalse = false; 
-      //algae.unfold();
+      CoralMode = false; 
       //coral.fold();
+      //algae.unfold();
       }
 
     // DPad Up - Go up a level
     if (dPad.getDPadUpPressed()) {      
-      elevator.level +=1;        
-      elevator.level = clamp(elevatorlevel, 0, 5); 
-      elevator.manualcontrol = false;}
+      elevator.level +=1;              
+      elevator.manualcontrol = false;
+      algae.manualcontrol = false;
+      coral.manualcontrol = false;
+    }
     // DPad Down - Go down a level
     else if (dPad.getDPadDownPressed()) {
-      elevator.level -=1;
-      elevator.level = clamp(elevatorlevel, 0, 5);
-      elevator.manualcontrol = false;}
+      elevator.level -=1;      
+      elevator.manualcontrol = false;
+      algae.manualcontrol = false;
+      coral.manualcontrol = false;
+    }
 
     // Y Button - manual control elevator Up and Down
     if (controller.getYButton()) {         
@@ -215,30 +211,31 @@ public class Robot extends TimedRobot {
       elevator.stop();}
 
     
-    // B and X Button - manually control coral wrist
-    if (controller.getBButton()) {
-      coral.wristraise(); } 
-    else if (controller.getXButton()) {
-      coral.wristlower(); } 
-    else {
-      coral.wriststop(); }
-
-    // Bumpers - manually control Algae Wrist
+    // Bumpers - manually control Algae or Coral Wrist
     if (controller.getRightBumperButton()) {
-      algae.wristraise(); } 
+      if (CoralMode){
+        coral.wristraise(); } 
+      else {
+        algae.wristraise(); } } 
     else if (controller.getLeftBumperButton()) {
-      algae.wristlower(); } 
+      if (CoralMode){        
+        coral.wristlower(); } 
+      else {
+        algae.wristlower(); }} 
     else {
-      algae.wriststop(); }
+      if (coral.manualcontrol) {
+        coral.wriststop(); }      
+      if (algae.manualcontrol) {
+        algae.wriststop(); }}      
 
     // Triggers - control intake and outtake
     if (controller.getRightTriggerAxis() > 0.05) {  
-      if (CoralModeTrueAlgaeModeFalse) {
+      if (CoralMode) {
         coral.intake(); } 
       else {
         algae.intake(); }} 
     else if (controller.getLeftTriggerAxis() > 0.05) {
-      if (CoralModeTrueAlgaeModeFalse) {
+      if (CoralMode) {
         coral.outtake(); } 
       else {
         algae.outtake(); }} 
@@ -265,7 +262,9 @@ public class Robot extends TimedRobot {
     swerveDrive.drive(forward, strafe, rotate, fieldRelative, rateLimit);
 
     // Run elevator if not in manual control
-    elevator.robotperiodic();
+    elevator.teleopPeriodic(CoralMode);
+    coral.teleopPeriodic(CoralMode, elevator.level);
+    algae.teleopPeriodic(!CoralMode, elevator.level);
   }
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//

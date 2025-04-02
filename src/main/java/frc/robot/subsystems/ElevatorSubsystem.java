@@ -2,14 +2,17 @@ package frc.robot.subsystems;
 
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
+import frc.utils.Common;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-// import edu.wpi.first.wpilibj.DigitalInput;
-
+import edu.wpi.first.wpilibj.smartdashboard.*;
+import java.util.Map;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -23,18 +26,25 @@ public class ElevatorSubsystem extends SubsystemBase{
     private RelativeEncoder encoder;
     private NetworkTableEntry NTElevatorPosition;
     private NetworkTableEntry NTElevatorLevel;
+    private GenericEntry NTkPEntry;
+    private GenericEntry NTkDEntry;
+    
     private double currentspeed;
     private double currentposition;
     public double elevatorspeedlimiter;
-    public boolean motorrunning;
     private DigitalInput ElevatorLimitSwitch;
     private boolean isLimitPressed;
-    private boolean wasLimitPressedLastTime;
-    private boolean coralmode;
+    private boolean wasLimitPressedLastTime;    
     private double speed;
-    private double lastspeed;
+    private double previousp;
     public int level;
     public boolean manualcontrol;
+    private double kP;
+    private double kD;
+
+
+
+
     public ElevatorSubsystem(){
 
         // Left Elevator Motor 
@@ -56,19 +66,25 @@ public class ElevatorSubsystem extends SubsystemBase{
         NetworkTable ElevatorTable = NetworkTableInstance.getDefault().getTable("Elevator");
         NTElevatorPosition = ElevatorTable.getEntry("Position");
         NTElevatorLevel = ElevatorTable.getEntry("Level");
-        motorrunning = false;
+        ShuffleboardTab tab = Shuffleboard.getTab("Elevator");
+        NTkPEntry = tab.add("kP",0.0).withWidget("Number Slider").withProperties(Map.of("min", 0.0, "max", 1.0)).getEntry();
+        NTkDEntry = tab.add("kD",0.0).withWidget("Number Slider").withProperties(Map.of("min", 0.0, "max", 1.0)).getEntry();
+        
+
         wasLimitPressedLastTime = false;
         level = 0;
-        lastspeed = 0;
+        previousp = 0;
     }
 
     public void init() {
         // Configure right Elevator Motor to follow left just in case this was missed at startup        
         ElevatorConstants.followConfig.follow(m_ElevatorLeftSpark, true);
         m_ElevatorRightSpark.configure(ElevatorConstants.followConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-        manualcontrol = true;
-        coralmode = true;
-    }
+
+        SmartDashboard.putNumber("Elevator kP", 0.1);  // Start values
+        SmartDashboard.putNumber("Elevator kD", 0.0);
+
+        manualcontrol = true;}
 
 
     private double scaledSpeedToTop() {
@@ -77,25 +93,27 @@ public class ElevatorSubsystem extends SubsystemBase{
     private double scaledSpeedToBottom() {
         return -ElevatorConstants.kElevatorSpeed * Math.min(100, currentposition)/100; }
 
-    public void periodic() {
+    public void robotPeriodic() {
         currentposition = encoder.getPosition(); 
         NTElevatorPosition.setDouble(currentposition);
         NTElevatorLevel.setInteger(level);
-        // Reset encoder position to zero when limit switch is triggered
+        kP = NTkPEntry.getDouble(0.0);
+        kD = NTkDEntry.getDouble(0.0);
+
+        // Reset encoder position to zero when limit switch is triggered (but don't do it over and over again)
         isLimitPressed = !ElevatorLimitSwitch.get();
         if (isLimitPressed && !wasLimitPressedLastTime) {
             encoder.setPosition(0.00);}
         wasLimitPressedLastTime = isLimitPressed;
-        // Used to limit swerve drive speed based on elevator height to prevent tipping with a higher center of gravity
+        // Speed limiter used to limit swerve drive speed based on elevator height to prevent tipping with a higher center of gravity
         elevatorspeedlimiter = (Constants.ElevatorConstants.kHighestLevel + 50 - currentposition) / ( Constants.ElevatorConstants.kHighestLevel + 50); }
 
-    public void robotperiodic() {
+    public void teleopPeriodic(boolean coralmode) {
         if (!manualcontrol) {
             if (coralmode) goToCoralLevel(level); 
             else goToAlgaeLevel(level);}
         else {
-            lastspeed = 0;
-        }}
+            previousp = 0;}}
 
     public void raise() {
         manualcontrol = true;
@@ -117,21 +135,24 @@ public class ElevatorSubsystem extends SubsystemBase{
         m_ElevatorLeftSpark.stopMotor(); }
 
     public void goToCoralLevel(int level) {
+        level = Common.clamp(level, 0, 5);
         goToPosition(ElevatorConstants.corallevels[level]);}
 
     public void goToAlgaeLevel(int level) {
+        level = Common.clamp(level, 0, 5);
         goToPosition(ElevatorConstants.algaelevels[level]);}
 
     private void goToPosition(double targetposition) {
-        double error = (targetposition - currentposition);  
-        error = Math.max(-1.0, Math.min(1.0, error));
-        double p = error * 0.6;  // PID - This is proportional
-        double d = (p - lastspeed) * 0.2;
+        currentposition = encoder.getPosition();
+        double error = (targetposition - currentposition) / Math.max(Math.abs(targetposition), 1.0);  
+        error = Common.clamp(error, -1.0, 1.0, 0.01);        
+        double p = error * kP;  // PID - This is proportional 
+        double d = (p - previousp) * kD;
         speed = p + d; 
         if (Math.abs(targetposition - currentposition) < 0.5) {  // If close enough to target, stop, otherwise set speed
-            lastspeed = 0; 
-            m_ElevatorLeftSpark.stopMotor();        }
+            previousp = 0; 
+            m_ElevatorLeftSpark.stopMotor();}
         else {
-            lastspeed = p;
+            previousp = p;
             m_ElevatorLeftSpark.set(speed);}}
 }
