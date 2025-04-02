@@ -61,7 +61,10 @@ public class CoralSubsystem extends SubsystemBase{
                 L4Scoring = true;
                 goToPosition(CoralConstants.coralwristlevels[3]);} // L4 Score
             else {
-                goToPosition(CoralConstants.coralwristlevels[2]);}}} // L1-L3 Score
+                goToPosition(CoralConstants.coralwristlevels[2]);}} // L1-L3 Score
+        else if (!manualcontrol && !CoralMode) {
+            goToPosition(CoralConstants.coralwristlevels[0]); }} 
+        
 
     public void intake() {
         m_CoralLeftSpark.set(CoralConstants.kCoralSpeed);}
@@ -115,8 +118,8 @@ public class CoralSubsystem extends SubsystemBase{
         currentposition = encoder.getPosition();
         double error = (targetposition - currentposition) / Math.max(Math.abs(targetposition), 1.0);   
         error = Common.clamp(error, -1.0, 1.0, 0.01);
-        double p = error * 0.6;  // PID - This is proportional
-        double d = (p - previousp) * 0.2;
+        double p = error * 0.2;  // PID - This is proportional
+        double d = (p - previousp) * 0.0;
         double speed = p + d; 
         if (Math.abs(targetposition - currentposition) < 0.5) {  // If close enough to target, stop, otherwise set speed
             previousp = 0; 

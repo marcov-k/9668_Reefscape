@@ -26,8 +26,7 @@ public class ElevatorSubsystem extends SubsystemBase{
     private RelativeEncoder encoder;
     private NetworkTableEntry NTElevatorPosition;
     private NetworkTableEntry NTElevatorLevel;
-    private GenericEntry NTkPEntry;
-    private GenericEntry NTkDEntry;
+    
     
     private double currentspeed;
     private double currentposition;
@@ -66,11 +65,7 @@ public class ElevatorSubsystem extends SubsystemBase{
         NetworkTable ElevatorTable = NetworkTableInstance.getDefault().getTable("Elevator");
         NTElevatorPosition = ElevatorTable.getEntry("Position");
         NTElevatorLevel = ElevatorTable.getEntry("Level");
-        ShuffleboardTab tab = Shuffleboard.getTab("Elevator");
-        NTkPEntry = tab.add("kP",0.0).withWidget("Number Slider").withProperties(Map.of("min", 0.0, "max", 1.0)).getEntry();
-        NTkDEntry = tab.add("kD",0.0).withWidget("Number Slider").withProperties(Map.of("min", 0.0, "max", 1.0)).getEntry();
         
-
         wasLimitPressedLastTime = false;
         level = 0;
         previousp = 0;
@@ -97,9 +92,7 @@ public class ElevatorSubsystem extends SubsystemBase{
         currentposition = encoder.getPosition(); 
         NTElevatorPosition.setDouble(currentposition);
         NTElevatorLevel.setInteger(level);
-        kP = NTkPEntry.getDouble(0.0);
-        kD = NTkDEntry.getDouble(0.0);
-
+       
         // Reset encoder position to zero when limit switch is triggered (but don't do it over and over again)
         isLimitPressed = !ElevatorLimitSwitch.get();
         if (isLimitPressed && !wasLimitPressedLastTime) {
@@ -143,6 +136,9 @@ public class ElevatorSubsystem extends SubsystemBase{
         goToPosition(ElevatorConstants.algaelevels[level]);}
 
     private void goToPosition(double targetposition) {
+        kP = 0.6;
+        kD = 0.05;
+
         currentposition = encoder.getPosition();
         double error = (targetposition - currentposition) / Math.max(Math.abs(targetposition), 1.0);  
         error = Common.clamp(error, -1.0, 1.0, 0.01);        
@@ -155,4 +151,8 @@ public class ElevatorSubsystem extends SubsystemBase{
         else {
             previousp = p;
             m_ElevatorLeftSpark.set(speed);}}
+
+    private void goToClosedLoopPosition(double targetposition){
+
+    }
 }

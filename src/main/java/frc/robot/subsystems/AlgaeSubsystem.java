@@ -56,7 +56,9 @@ public class AlgaeSubsystem extends SubsystemBase{
             else if (elevatorlevel == 5)
                 goToPosition(AlgaeConstants.algaewristlevels[2]); // Shoot at Barge
             else
-                goToPosition(AlgaeConstants.algaewristlevels[1]);}} // AlgaeIntake
+                goToPosition(AlgaeConstants.algaewristlevels[1]);} // AlgaeIntake
+        else if (!manualcontrol && !AlgaeMode) {
+            goToPosition(AlgaeConstants.algaewristlevels[0]);}} // Stow
             
 
     public void intake() {
@@ -92,8 +94,8 @@ public class AlgaeSubsystem extends SubsystemBase{
         currentposition = encoder.getPosition();
         double error = (targetposition - currentposition) / Math.max(Math.abs(targetposition), 1.0);  
         error = Common.clamp(error, -1.0, 1.0, 0.01);
-        double p = error * 0.6;  // PID - This is proportional
-        double d = (p - previousp) * 0.2;
+        double p = error * 0.15;  // PID - This is proportional
+        double d = (p - previousp) * 0.0;
         double speed = p + d; 
         if (Math.abs(targetposition - currentposition) < 0.5) {  // If close enough to target, stop, otherwise set speed
             previousp = 0; 

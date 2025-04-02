@@ -141,7 +141,7 @@ public final class Constants {
                 // NEED TO TEST AND ADJUST THESE VALUES
 
                 // Coral Levels are 0-Stow, 1-CoralIntake, 2-L1, 3-L2, 4-L3, 5-L4
-                public static final double[] corallevels = {10, 25.2, 46.7, 130, 245};
+                public static final double[] corallevels = {10, 25.2, 25.2, 46.7, 130, 245};
                 // Algae Levels are 0-Stow, 1-GroundIntake, 2-AlgaeProcessor, 3-L2, 4-L3, 5-Max
                 public static final double[] algaelevels = {10, 10, 15, 55, 160, 245};
 
@@ -182,7 +182,7 @@ public final class Constants {
                 public static final double kCoralWristSpeed = 0.20;
 
                 // Coral Wrist Levels are 0-Stow, 1-Intake, 2-L1-3Score, 3-L4Score
-                public static final double[] coralwristlevels = {0, 11.66, 38.9, 30};
+                public static final double[] coralwristlevels = {0, 11.66, 38.9, 29.3};
 
                 public static final SparkMaxConfig coral = new SparkMaxConfig();
                 public static final SparkMaxConfig wrist = new SparkMaxConfig();
@@ -215,7 +215,7 @@ public final class Constants {
                 public static final int kAlgaeFollowCanID = 12;
 
                 // Algae Wrist Levels are 0-Stowed, 1-Unfolded, 2-AimforBarge 
-                public static final double[] algaewristlevels = {0, 0, 0}; // This needs to be calibrated manually and then modified
+                public static final double[] algaewristlevels = {0, 40, 25}; // This needs to be calibrated manually and then modified
 
                 // Speed
                 public static final double kAlgaeSpeed = 0.5;

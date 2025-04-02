@@ -178,25 +178,33 @@ public class Robot extends TimedRobot {
     if (dPad.getDPadLeftPressed()) {
       CoralMode = true;      
       coral.unfold(elevator.level);
-      //algae.fold();
+      algae.fold();
+      elevator.manualcontrol = false;
+      algae.manualcontrol = false;
+      coral.manualcontrol = false;
       }
     // DPad Right - Select Algae Mode 
     else if (dPad.getDPadRightPressed()) {
       CoralMode = false; 
       coral.fold();
-      //algae.unfold();
+      algae.unfold();
+      elevator.manualcontrol = false;
+      algae.manualcontrol = false;
+      coral.manualcontrol = false;
       }
 
     // DPad Up - Go up a level
     if (dPad.getDPadUpPressed()) {      
-      elevator.level +=1;              
+      elevator.level +=1;
+      elevator.level = Common.clamp(elevator.level, 0, 5);               
       elevator.manualcontrol = false;
       algae.manualcontrol = false;
       coral.manualcontrol = false;
     }
     // DPad Down - Go down a level
     else if (dPad.getDPadDownPressed()) {
-      elevator.level -=1;      
+      elevator.level -=1;    
+      elevator.level = Common.clamp(elevator.level, 0, 5);  
       elevator.manualcontrol = false;
       algae.manualcontrol = false;
       coral.manualcontrol = false;
