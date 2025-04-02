@@ -12,17 +12,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkClosedLoopController;
 
 public class ElevatorSubsystem extends SubsystemBase{
 
     private final SparkFlex m_ElevatorLeftSpark; 
     private final SparkFlex m_ElevatorRightSpark;
-    private SparkClosedLoopController closedLoopController;
     private RelativeEncoder encoder;
     private NetworkTableEntry NTElevatorPosition;
     private NetworkTableEntry NTElevatorLevel;
@@ -33,8 +30,11 @@ public class ElevatorSubsystem extends SubsystemBase{
     private DigitalInput ElevatorLimitSwitch;
     private boolean isLimitPressed;
     private boolean wasLimitPressedLastTime;
+    private boolean coralmode;
+    private double speed;
+    private double lastspeed;
     public int level;
-
+    public boolean manualcontrol;
     public ElevatorSubsystem(){
 
         // Left Elevator Motor 
@@ -45,10 +45,7 @@ public class ElevatorSubsystem extends SubsystemBase{
         ElevatorConstants.followConfig.follow(m_ElevatorLeftSpark, true);       
         m_ElevatorRightSpark = new SparkFlex(ElevatorConstants.kElevatorRightCanId, MotorType.kBrushless);   
         m_ElevatorRightSpark.configure(ElevatorConstants.followConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        
-        // PID Controller
-        closedLoopController = m_ElevatorLeftSpark.getClosedLoopController();
-
+    
         // Elevator Encoder
         encoder = m_ElevatorLeftSpark.getEncoder();
 
@@ -62,12 +59,15 @@ public class ElevatorSubsystem extends SubsystemBase{
         motorrunning = false;
         wasLimitPressedLastTime = false;
         level = 0;
+        lastspeed = 0;
     }
 
     public void init() {
         // Configure right Elevator Motor to follow left just in case this was missed at startup        
         ElevatorConstants.followConfig.follow(m_ElevatorLeftSpark, true);
         m_ElevatorRightSpark.configure(ElevatorConstants.followConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        manualcontrol = true;
+        coralmode = true;
     }
 
 
@@ -89,33 +89,49 @@ public class ElevatorSubsystem extends SubsystemBase{
         // Used to limit swerve drive speed based on elevator height to prevent tipping with a higher center of gravity
         elevatorspeedlimiter = (Constants.ElevatorConstants.kHighestLevel + 50 - currentposition) / ( Constants.ElevatorConstants.kHighestLevel + 50); }
 
+    public void robotperiodic() {
+        if (!manualcontrol) {
+            if (coralmode) goToCoralLevel(level); 
+            else goToAlgaeLevel(level);}
+        else {
+            lastspeed = 0;
+        }}
+
     public void raise() {
+        manualcontrol = true;
         if (currentposition < ElevatorConstants.kHighestLevel) {
             currentspeed = scaledSpeedToTop();
             m_ElevatorLeftSpark.set(currentspeed);}
         else {
-            m_ElevatorLeftSpark.stopMotor();}
-        motorrunning = true; }
+            m_ElevatorLeftSpark.stopMotor();}}
 
     public void lower() {        
+        manualcontrol = true;
         if (currentposition > ElevatorConstants.kLowestLevel) {
             currentspeed = scaledSpeedToBottom();
             m_ElevatorLeftSpark.set(currentspeed);}
         else {
-            m_ElevatorLeftSpark.stopMotor();}
-        motorrunning = true; }
+            m_ElevatorLeftSpark.stopMotor();}}
 
     public void stop() {
         m_ElevatorLeftSpark.stopMotor(); }
 
     public void goToCoralLevel(int level) {
-        if (level < 0 || level >= ElevatorConstants.corallevels.length) return;
-        closedLoopController.setReference(ElevatorConstants.corallevels[level], ControlType.kPosition);
-        motorrunning = false; }
+        goToPosition(ElevatorConstants.corallevels[level]);}
 
     public void goToAlgaeLevel(int level) {
-        //if (level < 0 || level >= ElevatorConstants.algaelevels.length) return;
-        closedLoopController.setReference(ElevatorConstants.algaelevels[level], ControlType.kPosition);
-        motorrunning = false; }
+        goToPosition(ElevatorConstants.algaelevels[level]);}
 
+    private void goToPosition(double targetposition) {
+        double error = (targetposition - currentposition);  
+        error = Math.max(-1.0, Math.min(1.0, error));
+        double p = error * 0.6;  // PID - This is proportional
+        double d = (p - lastspeed) * 0.2;
+        speed = p + d; 
+        if (Math.abs(targetposition - currentposition) < 0.5) {  // If close enough to target, stop, otherwise set speed
+            lastspeed = 0; 
+            m_ElevatorLeftSpark.stopMotor();        }
+        else {
+            lastspeed = p;
+            m_ElevatorLeftSpark.set(speed);}}
 }

@@ -65,6 +65,10 @@ public class Robot extends TimedRobot {
   private double clamp(double value, double min, double max, double deadband) {
     if (Math.abs(value) < deadband) return 0;
     else return Math.max(min, Math.min(max, value)); }
+
+  private int clamp(int value, int min, int max) {
+    return Math.max(min, Math.min(max, value));
+  }
   
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
@@ -192,31 +196,22 @@ public class Robot extends TimedRobot {
       }
 
     // DPad Up - Go up a level
-    if (dPad.getDPadUpPressed()) {
-      elevatorlevel +=1;    
+    if (dPad.getDPadUpPressed()) {      
       elevator.level +=1;        
-      elevatorlevel = Math.floorMod(elevatorlevel, 5); 
-      
-      if (CoralModeTrueAlgaeModeFalse) {
-        elevator.goToCoralLevel(elevatorlevel); } 
-      else {
-        elevator.goToAlgaeLevel(elevatorlevel); } }
+      elevator.level = clamp(elevatorlevel, 0, 5); 
+      elevator.manualcontrol = false;}
     // DPad Down - Go down a level
     else if (dPad.getDPadDownPressed()) {
-      elevatorlevel -=1;      
       elevator.level -=1;
-      elevatorlevel = Math.floorMod(elevatorlevel, 5); 
-      if (CoralModeTrueAlgaeModeFalse) {
-        elevator.goToCoralLevel(elevatorlevel); } 
-      else {
-        elevator.goToAlgaeLevel(elevatorlevel); }}
+      elevator.level = clamp(elevatorlevel, 0, 5);
+      elevator.manualcontrol = false;}
 
     // Y Button - manual control elevator Up and Down
     if (controller.getYButton()) {         
       elevator.raise();} 
     else if (controller.getAButton()) { 
       elevator.lower();} 
-    else if (elevator.motorrunning) {
+    else if (elevator.manualcontrol) {
       elevator.stop();}
 
     
@@ -265,8 +260,12 @@ public class Robot extends TimedRobot {
     forward = MathUtil.applyDeadband(-controller.getLeftY() * OIConstants.kDriverSpeedLimit * elevator.elevatorspeedlimiter, OIConstants.kDriveDeadband);
     rotate = MathUtil.applyDeadband(controller.getRightX() * OIConstants.kDriverRotationLimit, OIConstants.kDriveDeadband);
 
-    // Send control values to swerve drive
+
+    // Send values to swerve drive    
     swerveDrive.drive(forward, strafe, rotate, fieldRelative, rateLimit);
+
+    // Run elevator if not in manual control
+    elevator.robotperiodic();
   }
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
