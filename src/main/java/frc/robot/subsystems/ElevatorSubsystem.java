@@ -82,7 +82,7 @@ public class ElevatorSubsystem extends SubsystemBase{
 
 
     private double scaledSpeedToTop() {
-        return ElevatorConstants.kElevatorSpeed * Math.min(100,(ElevatorConstants.kHighestLevel - currentposition))/100; }
+        return ElevatorConstants.kElevatorSpeed * Math.min(150,(ElevatorConstants.kHighestLevel - currentposition))/150; }
     
     private double scaledSpeedToBottom() {
         return -ElevatorConstants.kElevatorSpeed * Math.min(100, currentposition)/100; }
@@ -98,7 +98,7 @@ public class ElevatorSubsystem extends SubsystemBase{
             encoder.setPosition(0.00);}
         wasLimitPressedLastTime = isLimitPressed;
         // Speed limiter used to limit swerve drive speed based on elevator height to prevent tipping with a higher center of gravity
-        elevatorspeedlimiter = (Constants.ElevatorConstants.kHighestLevel + 50 - currentposition) / ( Constants.ElevatorConstants.kHighestLevel + 50); }
+        elevatorspeedlimiter = (Constants.ElevatorConstants.kHighestLevel + 70 - currentposition) / ( Constants.ElevatorConstants.kHighestLevel + 70); }
 
     public void teleopPeriodic(boolean coralmode) {
         if (!manualcontrol) {

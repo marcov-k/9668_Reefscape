@@ -141,7 +141,7 @@ public final class Constants {
                 // NEED TO TEST AND ADJUST THESE VALUES
 
                 // Coral Levels are 0-Stow, 1-CoralIntake, 2-L1, 3-L2, 4-L3, 5-L4
-                public static final double[] corallevels = {10, 25.2, 25.2, 46.7, 130, 245};
+                public static final double[] corallevels = {10, 25.2, 25.2, 46.7, 133, 245};
                 // Algae Levels are 0-Stow, 1-GroundIntake, 2-AlgaeProcessor, 3-L2, 4-L3, 5-Max
                 public static final double[] algaelevels = {10, 10, 15, 55, 160, 245};
 
@@ -253,8 +253,8 @@ public final class Constants {
         public static final class OIConstants {
                 public static final int kDriverControllerPort = 0;
                 public static final double kDriveDeadband = 0.02;
-                public static final double kDriverSpeedLimit = 0.50; // max forward speed
-                public static final double kDriverRotationLimit = 0.30; // max rotational speed
+                public static final double kDriverSpeedLimit = 0.80; // max forward speed
+                public static final double kDriverRotationLimit = 0.70; // max rotational speed
         }
 
         public static final class AutoConstants {

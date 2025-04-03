@@ -120,8 +120,8 @@ public class CoralSubsystem extends SubsystemBase{
         currentposition = encoder.getPosition();
         double error = (targetposition - currentposition) / Math.max(Math.abs(targetposition), 1.0);   
         error = Common.clamp(error, -1.0, 1.0, 0.01);
-        double p = error * 0.2;  // PID - This is proportional
-        double d = (p - previousp) * 0.0;
+        double p = error * 0.3;  // PID - This is proportional
+        double d = (p - previousp) * 0.05;
         double speed = p + d; 
         if (Math.abs(targetposition - currentposition) < 0.5) {  // If close enough to target, stop, otherwise set speed
             previousp = 0; 

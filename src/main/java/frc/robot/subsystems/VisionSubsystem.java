@@ -44,7 +44,7 @@ public class VisionSubsystem extends SubsystemBase{
         forward = (11.75 - largestArea) / largestArea; 
         strafe= -(-4.27-targetYaw)*.02; 
         forward = Common.clamp(forward, -0.1, 0.1, 0.05); 
-        strafe = Common.clamp(strafe, -0.05, 0.05, 0.01);        
+        strafe = Common.clamp(strafe, -0.1, 0.1, 0.01);        
         rotate = strafe;
         aligned = (forward == 0) && (rotate == 0);
       } 

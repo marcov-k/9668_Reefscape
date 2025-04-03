@@ -27,7 +27,8 @@ public class Robot extends TimedRobot {
   // Time  
   long elapsedTime;
   long startTime;
-  long shootTime;
+  long algaeTime;
+  long coralTime;
 
   // Swerve Drive 
   Double strafe;
@@ -61,6 +62,9 @@ public class Robot extends TimedRobot {
   double targetYaw;
   double targetPitch;
   boolean aligned;
+
+  // Auto
+  boolean shootingAlgae;
 
   // Controller
   private final XboxController controller = new XboxController(OIConstants.kDriverControllerPort);
@@ -100,7 +104,8 @@ public class Robot extends TimedRobot {
     startTime = System.currentTimeMillis();
     aligned = false;
     coral.manualcontrol = false;
-    shootTime = 0;
+    coralTime = 0;
+    algaeTime = 0;
   }
 
   /* AUTONOMOUS PERIODIC */
@@ -130,16 +135,40 @@ public class Robot extends TimedRobot {
         rotate = 0.02; }// Rotate until we see a target?      
       aligned = vision.onTarget();
       if (aligned) {
-        shootTime = System.currentTimeMillis();
+        algaeTime = System.currentTimeMillis();
+        shootingAlgae = true;
       }
     }
     // If aligned, shoot the coral
-    else if (aligned) {
-      long elapsedShootTime = System.currentTimeMillis() - shootTime;
-      if (elapsedShootTime < 3000) 
+    else if (aligned && shootingAlgae) {
+      long elapsedAlgaeTime = System.currentTimeMillis() - algaeTime;
+      if (elapsedAlgaeTime < 500) {
+        forward = 0.05;
+        algae.intake();
+      }
+      else if (elapsedAlgaeTime < 1000) {
+        forward = -0.05;
+        algae.stop();
+        shootingAlgae = false;
+      }
+
+   
+      if (!shootingAlgae) {
+        coralTime = System.currentTimeMillis();
+        coral.scoringpose();
+        elevator.goToCoralLevel(4);
+      }
+      
+    }
+    else if (aligned && !shootingAlgae){
+      coral.scoringpose();
+      elevator.goToCoralLevel(4);
+      long elapsedShootTime = System.currentTimeMillis() - coralTime;
+      if (elapsedShootTime > 3000 && elapsedShootTime < 3500) 
         coral.outtake(); 
       else
-        coral.stop(); }
+        coral.stop();
+        coral.fold(); }
     
     coral.autonomousPeriodic();
     elevator.teleopPeriodic(true);
@@ -154,7 +183,7 @@ public class Robot extends TimedRobot {
     elevator.init();
     fieldRelative = true;
     rateLimit = false;
-    CoralMode = true;  
+    CoralMode = false;  
     elevator.manualcontrol = true;
     coral.manualcontrol = true;
     algae.manualcontrol = true;
