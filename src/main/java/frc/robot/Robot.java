@@ -197,7 +197,7 @@ public class Robot extends TimedRobot {
     if (dPad.getDPadLeftPressed()) {
       CoralMode = true;      
       coral.unfold(elevator.level);
-      algae.fold();
+      // algae.fold();
       elevator.manualcontrol = false;
       algae.manualcontrol = false;
       coral.manualcontrol = false;
@@ -206,7 +206,7 @@ public class Robot extends TimedRobot {
     else if (dPad.getDPadRightPressed()) {
       CoralMode = false; 
       coral.fold();
-      algae.unfold();
+      //algae.unfold();
       elevator.manualcontrol = false;
       algae.manualcontrol = false;
       coral.manualcontrol = false;
