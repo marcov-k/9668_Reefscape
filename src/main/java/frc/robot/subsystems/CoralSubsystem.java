@@ -65,15 +65,17 @@ public class CoralSubsystem extends SubsystemBase{
         else if (!manualcontrol && !CoralMode) {
             goToPosition(CoralConstants.coralwristlevels[0]); }} 
         
-
+    public void autonomousPeriodic() {
+        goToPosition(CoralConstants.coralwristlevels[2]);}
+         
     public void intake() {
-        m_CoralLeftSpark.set(CoralConstants.kCoralSpeed);}
+        m_CoralLeftSpark.set(-CoralConstants.kCoralSpeed);}
 
     public void stop() {
         m_CoralLeftSpark.stopMotor();}
 
     public void outtake() { 
-        m_CoralLeftSpark.set(-CoralConstants.kCoralSpeed);
+        m_CoralLeftSpark.set(CoralConstants.kCoralSpeed);
         if (L4Scoring){
             goToPosition(14);}} // On an L4 Score, shoot while lifting the wrist from 30 to 14 to help knock it on there
 

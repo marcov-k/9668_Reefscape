@@ -215,7 +215,7 @@ public final class Constants {
                 public static final int kAlgaeFollowCanID = 12;
 
                 // Algae Wrist Levels are 0-Stowed, 1-Unfolded, 2-AimforBarge 
-                public static final double[] algaewristlevels = {0, 40, 25}; // This needs to be calibrated manually and then modified
+                public static final double[] algaewristlevels = {1.7, 40, 25}; // This needs to be calibrated manually and then modified
 
                 // Speed
                 public static final double kAlgaeSpeed = 0.5;

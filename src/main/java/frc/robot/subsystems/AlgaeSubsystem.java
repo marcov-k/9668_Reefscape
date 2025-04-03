@@ -62,13 +62,13 @@ public class AlgaeSubsystem extends SubsystemBase{
             
 
     public void intake() {
-        m_AlgaeLeftSpark.set(-AlgaeConstants.kAlgaeSpeed);}
+        m_AlgaeLeftSpark.set(AlgaeConstants.kAlgaeSpeed);}
 
     public void stop() {
         m_AlgaeLeftSpark.stopMotor();}
 
     public void outtake() {        
-        m_AlgaeLeftSpark.set(AlgaeConstants.kAlgaeSpeed);}
+        m_AlgaeLeftSpark.set(-AlgaeConstants.kAlgaeSpeed);}
 
     public void wristraise() {
         manualcontrol = true;

@@ -38,9 +38,12 @@ public class ElevatorSubsystem extends SubsystemBase{
     private double previousp;
     public int level;
     public boolean manualcontrol;
-    private double kP;
-    private double kD;
-
+    private double kPUp;
+    private double kPDown;
+    private double kDUp;
+    private double kDDown;
+    private double p;
+    private double d;
 
 
 
@@ -136,14 +139,21 @@ public class ElevatorSubsystem extends SubsystemBase{
         goToPosition(ElevatorConstants.algaelevels[level]);}
 
     private void goToPosition(double targetposition) {
-        kP = 0.6;
-        kD = 0.05;
+        kPUp = 0.75;
+        kDUp = 0.05;
+        kPDown = 0.3;
+        kDDown = 0.1;
+
 
         currentposition = encoder.getPosition();
         double error = (targetposition - currentposition) / Math.max(Math.abs(targetposition), 1.0);  
-        error = Common.clamp(error, -1.0, 1.0, 0.01);        
-        double p = error * kP;  // PID - This is proportional 
-        double d = (p - previousp) * kD;
+        error = Common.clamp(error, -1.0, 1.0, 0.01);
+        if (error > 0) {
+            p = error * kPUp;
+            d = (p - previousp) * kDDown;}  
+        else {
+            p = error * kPDown;
+            d = (p - previousp) * kDDown;}  
         speed = p + d; 
         if (Math.abs(targetposition - currentposition) < 0.5) {  // If close enough to target, stop, otherwise set speed
             previousp = 0; 

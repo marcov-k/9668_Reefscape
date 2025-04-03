@@ -56,6 +56,7 @@ public class Robot extends TimedRobot {
   double targetForwardDistance;
   double targetStrafeDistance;
   double targetYaw;
+  double targetPitch;
   boolean aligned;
 
   // Controller
@@ -96,6 +97,7 @@ public class Robot extends TimedRobot {
     rateLimit = false;    
     startTime = System.currentTimeMillis();
     aligned = false;
+    coral.manualcontrol = false;
   }
 
   /* AUTONOMOUS PERIODIC */
@@ -111,16 +113,15 @@ public class Robot extends TimedRobot {
     targetYaw = 0.0;
     targetVisible = false;      
     
-    
+    elevator.goToCoralLevel(4);
+    coral.scoringpose();
     // Drive forward for two seconds
     if (elapsedTime < 2000) {
       forward = 0.05; }
-    
     // For the next 5 seconds rotate until you see a Reef AprilTag, then rotate and drive towards it
-    else if (elapsedTime < 15000 && !aligned) {      
+    else if (elapsedTime < 10000 && !aligned) {      
       largestArea = 0.0;
       var results = camera.getAllUnreadResults();
-
       if (!results.isEmpty()){
         var result = results.get(results.size() - 1);
         if (result.hasTargets()) {
@@ -130,29 +131,27 @@ public class Robot extends TimedRobot {
                 if ((tagid > 6 && tagid < 11) || (tagid > 17 && tagid < 21)) {
                   // Find the closest reef tag (based on largest area of frame) and capture Yaw and Range
                   if (target.getArea() > largestArea) {
-                    largestArea = target.getArea();
                     bestTarget = tagid;
-                    targetTransform = target.getBestCameraToTarget();
-                    targetTranslation = targetTransform.getTranslation();
-                    targetRotation = targetTransform.getRotation();
-                    targetForwardDistance = targetTranslation.getZ();
-                    targetStrafeDistance = targetTranslation.getX();
-                    targetYaw = Math.toDegrees(targetRotation.getZ());
+                    largestArea = target.getArea();
+                    targetPitch = target.getPitch();
+                    targetYaw = target.getYaw();
                     targetVisible = true;}}}}}
 
       if (targetVisible) {
-        forward = Common.clamp(targetForwardDistance - 0.3, -0.3, 0.3, 0.05);        
-        strafe = Common.clamp(targetStrafeDistance, -0.3, 0.3, 0.05);
-        rotate = Common.clamp(targetYaw / 30.0, -0.1, 0.1, 0.02); }
-
-      aligned = Math.abs(targetForwardDistance - 0.3) < 0.05 && Math.abs(targetStrafeDistance) < 0.05 && Math.abs(targetYaw) < 3.0; }
-    
-    else if (aligned) {
-      elevator.goToCoralLevel(2);
-      coral.scoringpose(); 
+        forward = (8.0 - largestArea) / largestArea; 
+        strafe= -(-5.94-targetYaw)*.02; 
+        forward = Common.clamp(forward, -0.1, 0.1, 0.05); 
+        strafe = Common.clamp(strafe, -0.05, 0.05, 0.01);        
+        rotate = strafe;
+        aligned = (forward == 0) && (rotate == 0);
+      } 
+    }
+    else {
       coral.outtake();
     }
     
+    coral.autonomousPeriodic();
+    elevator.teleopPeriodic(true);
     swerveDrive.drive(forward, strafe, rotate, fieldRelative, rateLimit);
   }
 
@@ -239,14 +238,14 @@ public class Robot extends TimedRobot {
     // Triggers - control intake and outtake
     if (controller.getRightTriggerAxis() > 0.05) {  
       if (CoralMode) {
-        coral.intake(); } 
-      else {
-        algae.intake(); }} 
-    else if (controller.getLeftTriggerAxis() > 0.05) {
-      if (CoralMode) {
         coral.outtake(); } 
       else {
         algae.outtake(); }} 
+    else if (controller.getLeftTriggerAxis() > 0.05) {
+      if (CoralMode) {
+        coral.intake(); } 
+      else {
+        algae.intake(); }} 
     else {
       algae.stop();
       coral.stop(); }
