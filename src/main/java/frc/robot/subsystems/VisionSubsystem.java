@@ -41,8 +41,8 @@ public class VisionSubsystem extends SubsystemBase{
       getResults();
 
       if (targetVisible) {
-        forward = (8.0 - largestArea) / largestArea; 
-        strafe= -(-5.94-targetYaw)*.02; 
+        forward = (11.75 - largestArea) / largestArea; 
+        strafe= -(-4.27-targetYaw)*.02; 
         forward = Common.clamp(forward, -0.1, 0.1, 0.05); 
         strafe = Common.clamp(strafe, -0.05, 0.05, 0.01);        
         rotate = strafe;
