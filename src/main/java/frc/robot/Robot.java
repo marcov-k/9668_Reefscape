@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.DPadHelper;
@@ -43,6 +44,7 @@ public class Robot extends TimedRobot {
   private final ElevatorSubsystem elevator = new ElevatorSubsystem();
   private final CoralSubsystem coral = new CoralSubsystem();
   private final AlgaeSubsystem algae = new AlgaeSubsystem();
+  private final VisionSubsystem vision = new VisionSubsystem();
 
   // PhotonVision 
   PhotonCamera camera;
@@ -72,8 +74,7 @@ public class Robot extends TimedRobot {
     swerveDrive.zeroHeading();   
     swerveDrive.setPose(0,0,180);
     elevator.init();
-    camera = new PhotonCamera("FrontLeftCamera");
-    camera.getLatestResult(); // warm-up   
+    vision.init();    
   }
 
   /* ROBOT PERIODIC */

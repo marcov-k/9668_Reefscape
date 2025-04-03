@@ -3,16 +3,12 @@ package frc.robot.subsystems;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.utils.Common;
-import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.smartdashboard.*;
-import java.util.Map;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -139,8 +135,8 @@ public class ElevatorSubsystem extends SubsystemBase{
         goToPosition(ElevatorConstants.algaelevels[level]);}
 
     private void goToPosition(double targetposition) {
-        kPUp = 0.75;
-        kDUp = 0.05;
+        kPUp = 0.8;
+        kDUp = 0.1;
         kPDown = 0.3;
         kDDown = 0.1;
 
@@ -150,7 +146,7 @@ public class ElevatorSubsystem extends SubsystemBase{
         error = Common.clamp(error, -1.0, 1.0, 0.01);
         if (error > 0) {
             p = error * kPUp;
-            d = (p - previousp) * kDDown;}  
+            d = (p - previousp) * kDUp;}  
         else {
             p = error * kPDown;
             d = (p - previousp) * kDDown;}  
@@ -162,7 +158,5 @@ public class ElevatorSubsystem extends SubsystemBase{
             previousp = p;
             m_ElevatorLeftSpark.set(speed);}}
 
-    private void goToClosedLoopPosition(double targetposition){
-
-    }
+    
 }
