@@ -27,6 +27,7 @@ public class Robot extends TimedRobot {
   // Time  
   long elapsedTime;
   long startTime;
+  long shootTime;
 
   // Swerve Drive 
   Double strafe;
@@ -99,6 +100,7 @@ public class Robot extends TimedRobot {
     startTime = System.currentTimeMillis();
     aligned = false;
     coral.manualcontrol = false;
+    shootTime = 0;
   }
 
   /* AUTONOMOUS PERIODIC */
@@ -109,10 +111,6 @@ public class Robot extends TimedRobot {
     forward = 0.0;
     strafe = 0.0;
     rotate = 0.0; 
-    targetForwardDistance = 0.0;
-    targetStrafeDistance = 0.0;
-    targetYaw = 0.0;
-    targetVisible = false;      
     
     elevator.goToCoralLevel(4);
     coral.scoringpose();
@@ -120,36 +118,28 @@ public class Robot extends TimedRobot {
     if (elapsedTime < 2000) {
       forward = 0.05; }
     // For the next 5 seconds rotate until you see a Reef AprilTag, then rotate and drive towards it
-    else if (elapsedTime < 10000 && !aligned) {      
-      largestArea = 0.0;
-      var results = camera.getAllUnreadResults();
-      if (!results.isEmpty()){
-        var result = results.get(results.size() - 1);
-        if (result.hasTargets()) {
-            for (var target : result.getTargets()) {
-                tagid = target.getFiducialId();
-                // If the tag is a reef tag
-                if ((tagid > 6 && tagid < 11) || (tagid > 17 && tagid < 21)) {
-                  // Find the closest reef tag (based on largest area of frame) and capture Yaw and Range
-                  if (target.getArea() > largestArea) {
-                    bestTarget = tagid;
-                    largestArea = target.getArea();
-                    targetPitch = target.getPitch();
-                    targetYaw = target.getYaw();
-                    targetVisible = true;}}}}}
-
-      if (targetVisible) {
-        forward = (8.0 - largestArea) / largestArea; 
-        strafe= -(-5.94-targetYaw)*.02; 
-        forward = Common.clamp(forward, -0.1, 0.1, 0.05); 
-        strafe = Common.clamp(strafe, -0.05, 0.05, 0.01);        
-        rotate = strafe;
-        aligned = (forward == 0) && (rotate == 0);
-      } 
+    else if (elapsedTime < 10000 && !aligned) {
+      vision.getDirectionsToTarget();
+      if (vision.targetVisible()){
+        forward = vision.forward;
+        strafe = vision.strafe;
+        rotate = vision.rotate; } 
+      else {
+        forward = 0.0;
+        strafe = 0.0;
+        rotate = 0.02; }// Rotate until we see a target?      
+      aligned = vision.onTarget();
+      if (aligned) {
+        shootTime = System.currentTimeMillis();
+      }
     }
-    else {
-      coral.outtake();
-    }
+    // If aligned, shoot the coral
+    else if (aligned) {
+      long elapsedShootTime = System.currentTimeMillis() - shootTime;
+      if (elapsedShootTime < 3000) 
+        coral.outtake(); 
+      else
+        coral.stop(); }
     
     coral.autonomousPeriodic();
     elevator.teleopPeriodic(true);
@@ -265,6 +255,13 @@ public class Robot extends TimedRobot {
     forward = MathUtil.applyDeadband(-controller.getLeftY() * OIConstants.kDriverSpeedLimit * elevator.elevatorspeedlimiter, OIConstants.kDriveDeadband);
     rotate = MathUtil.applyDeadband(controller.getRightX() * OIConstants.kDriverRotationLimit, OIConstants.kDriveDeadband);
 
+    // While pressing X Button - Vision auto to AprilTag
+    if (controller.getXButton()) {
+      vision.getDirectionsToTarget();
+      forward = vision.forward;
+      strafe = vision.strafe;
+      rotate = vision.rotate;
+    }
 
     // Send values to swerve drive    
     swerveDrive.drive(forward, strafe, rotate, fieldRelative, rateLimit);

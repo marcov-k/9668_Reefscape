@@ -26,17 +26,31 @@ public class VisionSubsystem extends SubsystemBase{
     public double rotate;
 
     public VisionSubsystem() {
-        camera = new PhotonCamera("FrontLeftCamera");
-    }
+        camera = new PhotonCamera("FrontLeftCamera"); }
 
     public void init() {
         camera.getLatestResult(); // warm-up  
         forward=0;
         strafe=0;
-        rotate=0;
-    }
+        rotate=0;    }
 
     public void getDirectionsToTarget() {
+      forward = 0;
+      strafe = 0;
+      rotate = 0;
+      getResults();
+
+      if (targetVisible) {
+        forward = (8.0 - largestArea) / largestArea; 
+        strafe= -(-5.94-targetYaw)*.02; 
+        forward = Common.clamp(forward, -0.1, 0.1, 0.05); 
+        strafe = Common.clamp(strafe, -0.05, 0.05, 0.01);        
+        rotate = strafe;
+        aligned = (forward == 0) && (rotate == 0);
+      } 
+    }
+
+    public void getResults() {
       largestArea = 0.0;
       var results = camera.getAllUnreadResults();
       if (!results.isEmpty()){
@@ -53,15 +67,6 @@ public class VisionSubsystem extends SubsystemBase{
                     targetPitch = target.getPitch();
                     targetYaw = target.getYaw();
                     targetVisible = true;}}}}}
-
-      if (targetVisible) {
-        forward = (8.0 - largestArea) / largestArea; 
-        strafe= -(-5.94-targetYaw)*.02; 
-        forward = Common.clamp(forward, -0.1, 0.1, 0.05); 
-        strafe = Common.clamp(strafe, -0.05, 0.05, 0.01);        
-        rotate = strafe;
-        aligned = (forward == 0) && (rotate == 0);
-      } 
     }
 
     public boolean targetVisible() {
