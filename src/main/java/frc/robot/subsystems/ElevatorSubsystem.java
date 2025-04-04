@@ -133,7 +133,7 @@ public class ElevatorSubsystem extends SubsystemBase{
     public void goToCoralLevel(int level) {
         level = Common.clamp(level, 0, 5);
         goToPosition(ElevatorConstants.corallevels[level]);
-        //goToPositionFaster(ElevatorConstants.corallevels[level]);
+        // goToPositionFaster(ElevatorConstants.corallevels[level]);
     }
 
     public void goToAlgaeLevel(int level) {
@@ -141,7 +141,7 @@ public class ElevatorSubsystem extends SubsystemBase{
         goToPosition(ElevatorConstants.algaelevels[level]);}
 
     private void goToPosition(double targetposition) {
-        kPUp = 0.9;
+        kPUp = 1.0;
         kDUp = 0.1;
         kPDown = 0.3;
         kDDown = 0.1;
@@ -165,36 +165,16 @@ public class ElevatorSubsystem extends SubsystemBase{
     private void goToPositionFaster(double targetposition){
         currentposition = encoder.getPosition();
         double distance = targetposition - currentposition;
-        double kP = 0.0;
-        double kD = 0.0;
-        double slowdowndistance = 20;
-
-        if (Math.abs(distance) > 0.5) {
-            if (Math.abs(distance) > slowdowndistance) {
-                speed = ElevatorConstants.kElevatorSpeed;}
-            else if (Math.abs(distance) <= slowdowndistance){
-                speed = ElevatorConstants.kElevatorSpeed * distance/slowdowndistance;}}
-        else    
-            speed = 0;
+        double slowdowndistance = 25;
         
-        if (distance > 0){  // Going up
-            kP = 0.8;
-            kD = 0.1;
-        }
-        else if (distance < 0) { // Going Down
-            kP = 0.3;
-            kD = 0.1;
-        }
-
-        p = speed * kP;
-        d = (p - previousp) * kD;
-        speed = p + d;
-
+        if (Math.abs(distance) > slowdowndistance) {
+            speed = ElevatorConstants.kElevatorSpeed * distance/Math.abs(distance);}
+        else if (Math.abs(distance) <= slowdowndistance){
+            speed = ElevatorConstants.kElevatorSpeed * distance/slowdowndistance;}
+    
         if (Math.abs(distance) < 0.5) {  // If close enough to target, stop, otherwise set speed
-            previousp = 0; 
             m_ElevatorLeftSpark.stopMotor();}
         else {
-            previousp = p;
             m_ElevatorLeftSpark.set(speed);}
         
 
