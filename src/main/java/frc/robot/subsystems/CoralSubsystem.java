@@ -9,9 +9,9 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
+//import edu.wpi.first.networktables.NetworkTable;
+//import edu.wpi.first.networktables.NetworkTableEntry;
+//import edu.wpi.first.networktables.NetworkTableInstance;
 
 
 
@@ -21,7 +21,7 @@ public class CoralSubsystem extends SubsystemBase{
     private final SparkMax m_CoralWristSpark; 
     
     private RelativeEncoder encoder;
-    private NetworkTableEntry NTCoralPosition;
+    //private NetworkTableEntry NTCoralPosition;
     public double currentposition;
     public boolean manualcontrol;
     private double previousp;
@@ -41,12 +41,14 @@ public class CoralSubsystem extends SubsystemBase{
         encoder = m_CoralWristSpark.getEncoder();
         
         // Initialize NetworkTable variables
-        NetworkTable Table = NetworkTableInstance.getDefault().getTable("Coral");
-        NTCoralPosition = Table.getEntry("WristPosition"); }
+        //NetworkTable Table = NetworkTableInstance.getDefault().getTable("Coral");
+        //NTCoralPosition = Table.getEntry("WristPosition"); 
+        }
 
     public void robotPeriodic() {
         currentposition = encoder.getPosition();
-        NTCoralPosition.setDouble(currentposition);}
+        //NTCoralPosition.setDouble(currentposition);
+        }
 
     public void teleopPeriodic(boolean CoralMode, int elevatorlevel) {
         if (!manualcontrol && CoralMode) {
@@ -62,7 +64,7 @@ public class CoralSubsystem extends SubsystemBase{
                 goToPosition(CoralConstants.coralwristlevels[3]);} // L4 Score
             else {
                 goToPosition(CoralConstants.coralwristlevels[2]);}} // L1-L3 Score
-        else if (!manualcontrol && !CoralMode) {
+        else if (!CoralMode) {
             goToPosition(CoralConstants.coralwristlevels[0]); }} 
         
     public void autonomousPeriodic() {

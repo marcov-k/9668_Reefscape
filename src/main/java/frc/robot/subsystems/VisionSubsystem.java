@@ -45,7 +45,7 @@ public class VisionSubsystem extends SubsystemBase{
         strafe= -(-4.27-targetYaw)*.02; 
         forward = Common.clamp(forward, -0.1, 0.1, 0.05); 
         strafe = Common.clamp(strafe, -0.1, 0.1, 0.01);        
-        rotate = strafe;
+        rotate = -strafe;
         aligned = (forward == 0) && (rotate == 0);
       } 
     }

@@ -219,7 +219,7 @@ public final class Constants {
 
                 // Speed
                 public static final double kAlgaeSpeed = 0.5;
-                public static final double kAlgaeWristSpeed = 0.3;
+                public static final double kAlgaeWristSpeed = 0.5;
 
                 public static final SparkMaxConfig AlgaeLead = new SparkMaxConfig();
                 public static final SparkMaxConfig AlgaeFollow = new SparkMaxConfig();
@@ -253,8 +253,8 @@ public final class Constants {
         public static final class OIConstants {
                 public static final int kDriverControllerPort = 0;
                 public static final double kDriveDeadband = 0.02;
-                public static final double kDriverSpeedLimit = 0.80; // max forward speed
-                public static final double kDriverRotationLimit = 0.70; // max rotational speed
+                public static final double kDriverSpeedLimit = 0.60; // max forward speed
+                public static final double kDriverRotationLimit = 0.50; // max rotational speed
         }
 
         public static final class AutoConstants {

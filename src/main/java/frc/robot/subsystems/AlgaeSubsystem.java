@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 import frc.robot.Constants.AlgaeConstants;
 import frc.utils.Common;
-import edu.wpi.first.networktables.NetworkTableEntry;
+// import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
@@ -19,7 +19,7 @@ public class AlgaeSubsystem extends SubsystemBase{
     private final SparkMax m_AlgaeWristSpark; 
     private RelativeEncoder encoder;
     public double currentposition;
-    private NetworkTableEntry NTAlgaePosition;
+    // private NetworkTableEntry NTAlgaePosition;
     public boolean manualcontrol;
     private double previousp;
 
@@ -40,12 +40,14 @@ public class AlgaeSubsystem extends SubsystemBase{
         encoder = m_AlgaeWristSpark.getEncoder();
 
         // Initialize NetworkTable variables
-        NetworkTable Table = NetworkTableInstance.getDefault().getTable("Algae");
-        NTAlgaePosition = Table.getEntry("WristPosition"); }
+        // NetworkTable Table = NetworkTableInstance.getDefault().getTable("Algae");
+        // NTAlgaePosition = Table.getEntry("WristPosition"); 
+        }
 
     public void robotPeriodic() {
         currentposition = encoder.getPosition();
-        NTAlgaePosition.setDouble(currentposition);}
+        // NTAlgaePosition.setDouble(currentposition);
+        }
 
     public void teleopPeriodic(boolean AlgaeMode, int elevatorlevel) {
         if (!manualcontrol && AlgaeMode) { 
@@ -57,8 +59,9 @@ public class AlgaeSubsystem extends SubsystemBase{
                 goToPosition(AlgaeConstants.algaewristlevels[2]); // Shoot at Barge
             else
                 goToPosition(AlgaeConstants.algaewristlevels[1]);} // AlgaeIntake
-        else if (!manualcontrol && !AlgaeMode) {
-            goToPosition(AlgaeConstants.algaewristlevels[0]);}} // Stow
+        //else if (!AlgaeMode) {
+          //  goToPosition(AlgaeConstants.algaewristlevels[0]);} // Stow
+          } 
             
 
     public void intake() {

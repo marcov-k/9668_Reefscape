@@ -117,52 +117,28 @@ public class Robot extends TimedRobot {
     strafe = 0.0;
     rotate = 0.0; 
     
-    elevator.goToCoralLevel(4);
+    elevator.goToCoralLevel(3);
     coral.scoringpose();
     // Drive forward for two seconds
     if (elapsedTime < 2000) {
-      forward = 0.05; }
+      forward = 0.1; }
     // For the next 5 seconds rotate until you see a Reef AprilTag, then rotate and drive towards it
-    else if (elapsedTime < 10000 && !aligned) {
+    else if (elapsedTime < 15000 && !aligned) {
       vision.getDirectionsToTarget();
-      if (vision.targetVisible()){
+      if (vision.targetVisible()){ // If a target is visible
         forward = vision.forward;
         strafe = vision.strafe;
         rotate = vision.rotate; } 
       else {
         forward = 0.0;
         strafe = 0.0;
-        rotate = 0.02; }// Rotate until we see a target?      
+        rotate = 0.05; }// Rotate until we see a target      
       aligned = vision.onTarget();
       if (aligned) {
-        algaeTime = System.currentTimeMillis();
-        shootingAlgae = true;
-      }
-    }
-    // If aligned, shoot the coral
-    else if (aligned && shootingAlgae) {
-      long elapsedAlgaeTime = System.currentTimeMillis() - algaeTime;
-      if (elapsedAlgaeTime < 500) {
-        forward = 0.05;
-        algae.intake();
-      }
-      else if (elapsedAlgaeTime < 1000) {
-        forward = -0.05;
-        algae.stop();
-        shootingAlgae = false;
-      }
-
-   
-      if (!shootingAlgae) {
         coralTime = System.currentTimeMillis();
-        coral.scoringpose();
-        elevator.goToCoralLevel(4);
       }
-      
     }
-    else if (aligned && !shootingAlgae){
-      coral.scoringpose();
-      elevator.goToCoralLevel(4);
+    else if (aligned){
       long elapsedShootTime = System.currentTimeMillis() - coralTime;
       if (elapsedShootTime > 3000 && elapsedShootTime < 3500) 
         coral.outtake(); 
@@ -171,7 +147,7 @@ public class Robot extends TimedRobot {
         coral.fold(); }
     
     coral.autonomousPeriodic();
-    elevator.teleopPeriodic(true);
+    elevator.autonomousPeriodic();
     swerveDrive.drive(forward, strafe, rotate, fieldRelative, rateLimit);
   }
 
@@ -183,7 +159,7 @@ public class Robot extends TimedRobot {
     elevator.init();
     fieldRelative = true;
     rateLimit = false;
-    CoralMode = false;  
+    CoralMode = true;  
     elevator.manualcontrol = true;
     coral.manualcontrol = true;
     algae.manualcontrol = true;
