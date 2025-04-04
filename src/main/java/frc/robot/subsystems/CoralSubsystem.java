@@ -1,17 +1,12 @@
 package frc.robot.subsystems;
-
 import frc.robot.Constants.CoralConstants;
 import frc.utils.Common;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 
 
 
@@ -21,11 +16,12 @@ public class CoralSubsystem extends SubsystemBase{
     private final SparkMax m_CoralWristSpark; 
     
     private RelativeEncoder encoder;
-    private NetworkTableEntry NTCoralPosition;
+    //private NetworkTableEntry NTCoralPosition;
     public double currentposition;
     public boolean manualcontrol;
     private double previousp;
     private boolean L4Scoring;
+    private double desiredposition;
 
     public CoralSubsystem(){
 
@@ -39,14 +35,11 @@ public class CoralSubsystem extends SubsystemBase{
 
         // Coral Encoder
         encoder = m_CoralWristSpark.getEncoder();
-        
-        // Initialize NetworkTable variables
-        NetworkTable Table = NetworkTableInstance.getDefault().getTable("Coral");
-        NTCoralPosition = Table.getEntry("WristPosition"); }
+    }
 
     public void robotPeriodic() {
         currentposition = encoder.getPosition();
-        NTCoralPosition.setDouble(currentposition);}
+    }
 
     public void teleopPeriodic(boolean CoralMode, int elevatorlevel) {
         if (!manualcontrol && CoralMode) {
@@ -62,8 +55,7 @@ public class CoralSubsystem extends SubsystemBase{
                 goToPosition(CoralConstants.coralwristlevels[3]);} // L4 Score
             else {
                 goToPosition(CoralConstants.coralwristlevels[2]);}} // L1-L3 Score
-        else if (!manualcontrol && !CoralMode) {
-            goToPosition(CoralConstants.coralwristlevels[0]); }} 
+    } 
         
     public void autonomousPeriodic() {
         goToPosition(CoralConstants.coralwristlevels[2]);}
@@ -81,14 +73,16 @@ public class CoralSubsystem extends SubsystemBase{
 
     public void wristraise() {  
         manualcontrol = true;
-        m_CoralWristSpark.set(-CoralConstants.kCoralWristSpeed);}
+        m_CoralWristSpark.set(-CoralConstants.kCoralWristSpeed);
+        desiredposition = currentposition;}
 
-    public void wriststop() {        
-        m_CoralWristSpark.stopMotor();}
+    public void wriststop() {       
+        goToPosition(desiredposition);}
 
     public void wristlower() {                
         manualcontrol = true;
-        m_CoralWristSpark.set(CoralConstants.kCoralWristSpeed);}
+        m_CoralWristSpark.set(CoralConstants.kCoralWristSpeed);
+        desiredposition = currentposition;}
 
     public void fold() {
         goToPosition(CoralConstants.coralwristlevels[0]);}
@@ -114,14 +108,15 @@ public class CoralSubsystem extends SubsystemBase{
         goToPosition(CoralConstants.coralwristlevels[1]);} // CoralIntake   
 
     public void init() {
-        encoder.setPosition(0);}
+        encoder.setPosition(0);
+        desiredposition = 0;}
 
     private void goToPosition(double targetposition) {
         currentposition = encoder.getPosition();
         double error = (targetposition - currentposition) / Math.max(Math.abs(targetposition), 1.0);   
         error = Common.clamp(error, -1.0, 1.0, 0.01);
-        double p = error * 0.2;  // PID - This is proportional
-        double d = (p - previousp) * 0.0;
+        double p = error * 0.3;  // PID - This is proportional
+        double d = (p - previousp) * 0.05;
         double speed = p + d; 
         if (Math.abs(targetposition - currentposition) < 0.5) {  // If close enough to target, stop, otherwise set speed
             previousp = 0; 

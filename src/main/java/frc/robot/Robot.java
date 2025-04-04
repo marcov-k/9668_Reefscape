@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.DPadHelper;
@@ -26,6 +27,8 @@ public class Robot extends TimedRobot {
   // Time  
   long elapsedTime;
   long startTime;
+  long algaeTime;
+  long coralTime;
 
   // Swerve Drive 
   Double strafe;
@@ -43,6 +46,7 @@ public class Robot extends TimedRobot {
   private final ElevatorSubsystem elevator = new ElevatorSubsystem();
   private final CoralSubsystem coral = new CoralSubsystem();
   private final AlgaeSubsystem algae = new AlgaeSubsystem();
+  private final VisionSubsystem vision = new VisionSubsystem();
 
   // PhotonVision 
   PhotonCamera camera;
@@ -58,6 +62,11 @@ public class Robot extends TimedRobot {
   double targetYaw;
   double targetPitch;
   boolean aligned;
+  boolean slowmode;
+  double slowspeedlimit;
+
+  // Auto
+  boolean shootingAlgae;
 
   // Controller
   private final XboxController controller = new XboxController(OIConstants.kDriverControllerPort);
@@ -72,8 +81,7 @@ public class Robot extends TimedRobot {
     swerveDrive.zeroHeading();   
     swerveDrive.setPose(0,0,180);
     elevator.init();
-    camera = new PhotonCamera("FrontLeftCamera");
-    camera.getLatestResult(); // warm-up   
+    vision.init();    
   }
 
   /* ROBOT PERIODIC */
@@ -98,6 +106,8 @@ public class Robot extends TimedRobot {
     startTime = System.currentTimeMillis();
     aligned = false;
     coral.manualcontrol = false;
+    coralTime = 0;
+    algaeTime = 0;
   }
 
   /* AUTONOMOUS PERIODIC */
@@ -108,50 +118,38 @@ public class Robot extends TimedRobot {
     forward = 0.0;
     strafe = 0.0;
     rotate = 0.0; 
-    targetForwardDistance = 0.0;
-    targetStrafeDistance = 0.0;
-    targetYaw = 0.0;
-    targetVisible = false;      
     
-    elevator.goToCoralLevel(4);
+    elevator.goToCoralLevel(3);
     coral.scoringpose();
     // Drive forward for two seconds
     if (elapsedTime < 2000) {
-      forward = 0.05; }
+      forward = 0.1; }
     // For the next 5 seconds rotate until you see a Reef AprilTag, then rotate and drive towards it
-    else if (elapsedTime < 10000 && !aligned) {      
-      largestArea = 0.0;
-      var results = camera.getAllUnreadResults();
-      if (!results.isEmpty()){
-        var result = results.get(results.size() - 1);
-        if (result.hasTargets()) {
-            for (var target : result.getTargets()) {
-                tagid = target.getFiducialId();
-                // If the tag is a reef tag
-                if ((tagid > 6 && tagid < 11) || (tagid > 17 && tagid < 21)) {
-                  // Find the closest reef tag (based on largest area of frame) and capture Yaw and Range
-                  if (target.getArea() > largestArea) {
-                    bestTarget = tagid;
-                    largestArea = target.getArea();
-                    targetPitch = target.getPitch();
-                    targetYaw = target.getYaw();
-                    targetVisible = true;}}}}}
-
-      if (targetVisible) {
-        forward = (8.0 - largestArea) / largestArea; 
-        strafe= -(-5.94-targetYaw)*.02; 
-        forward = Common.clamp(forward, -0.1, 0.1, 0.05); 
-        strafe = Common.clamp(strafe, -0.05, 0.05, 0.01);        
-        rotate = strafe;
-        aligned = (forward == 0) && (rotate == 0);
-      } 
+    else if (elapsedTime < 15000 && !aligned) {
+      vision.getDirectionsToTarget();
+      if (vision.targetVisible()){ // If a target is visible
+        forward = vision.forward;
+        strafe = vision.strafe;
+        rotate = vision.rotate; } 
+      else {
+        forward = 0.0;
+        strafe = 0.0;
+        rotate = 0.05; }// Rotate until we see a target      
+      aligned = vision.onTarget();
+      if (aligned) {
+        coralTime = System.currentTimeMillis();
+      }
     }
-    else {
-      coral.outtake();
-    }
+    else if (aligned){
+      long elapsedShootTime = System.currentTimeMillis() - coralTime;
+      if (elapsedShootTime > 3000 && elapsedShootTime < 3500) 
+        coral.outtake(); 
+      else
+        coral.stop();
+        coral.fold(); }
     
     coral.autonomousPeriodic();
-    elevator.teleopPeriodic(true);
+    elevator.autonomousPeriodic();
     swerveDrive.drive(forward, strafe, rotate, fieldRelative, rateLimit);
   }
 
@@ -167,6 +165,8 @@ public class Robot extends TimedRobot {
     elevator.manualcontrol = true;
     coral.manualcontrol = true;
     algae.manualcontrol = true;
+    slowmode = false;
+    slowspeedlimit = 1.0;
   }
 
   /* TELEOP PERIODIC */
@@ -175,9 +175,10 @@ public class Robot extends TimedRobot {
     
     // DPad Left - Select Coral Mode 
     if (dPad.getDPadLeftPressed()) {
-      CoralMode = true;      
-      coral.unfold(elevator.level);
-      algae.fold();
+      CoralMode = true;  
+      coral.intakepose();
+      elevator.goToCoralLevel(1);
+      elevator.level = 1;
       elevator.manualcontrol = false;
       algae.manualcontrol = false;
       coral.manualcontrol = false;
@@ -185,8 +186,6 @@ public class Robot extends TimedRobot {
     // DPad Right - Select Algae Mode 
     else if (dPad.getDPadRightPressed()) {
       CoralMode = false; 
-      coral.fold();
-      algae.unfold();
       elevator.manualcontrol = false;
       algae.manualcontrol = false;
       coral.manualcontrol = false;
@@ -209,7 +208,7 @@ public class Robot extends TimedRobot {
       coral.manualcontrol = false;
     }
 
-    // Y Button - manual control elevator Up and Down
+    // Y & A Buttons - manual control elevator Up and Down
     if (controller.getYButton()) {         
       elevator.raise();} 
     else if (controller.getAButton()) { 
@@ -218,24 +217,29 @@ public class Robot extends TimedRobot {
       elevator.stop();}
 
     
-    // Bumpers - manually control Algae or Coral Wrist
+    // Bumpers - manually control Algae Wrist
     if (controller.getRightBumperButton()) {
-      if (CoralMode){
-        coral.wristraise(); } 
-      else {
-        algae.wristraise(); } } 
+        algae.wristraise(); 
+        algae.manualcontrol = true;}  
     else if (controller.getLeftBumperButton()) {
-      if (CoralMode){        
-        coral.wristlower(); } 
-      else {
-        algae.wristlower(); }} 
+        algae.wristlower();
+        algae.manualcontrol = true; } 
+    else {      
+      if (algae.manualcontrol) {
+        algae.wriststop(); }}     
+        
+    // X and B - manually control Coral Wrist
+    if (controller.getXButton()) {
+        coral.wristlower(); 
+        coral.manualcontrol = true;}
+    else if (controller.getBButton()) {      
+        coral.wristraise(); 
+        coral.manualcontrol = true;} 
     else {
       if (coral.manualcontrol) {
-        coral.wriststop(); }      
-      if (algae.manualcontrol) {
-        algae.wriststop(); }}      
+        coral.wriststop(); }}        
 
-    // Triggers - control intake and outtake
+    // Triggers - control intake and outtake based on Mode
     if (controller.getRightTriggerAxis() > 0.05) {  
       if (CoralMode) {
         coral.outtake(); } 
@@ -250,6 +254,15 @@ public class Robot extends TimedRobot {
       algae.stop();
       coral.stop(); }
     
+    // Press and release Right Stick Button to toggle slow mode
+    if (controller.getRightStickButtonPressed()){
+      slowmode = !slowmode;
+      if (slowmode) {
+        slowspeedlimit = 0.5;}
+      else {
+        slowspeedlimit = 1.0; }
+    }
+
     // Back button - Zero Heading
     if (controller.getBackButtonPressed()) {
       swerveDrive.zeroHeading(); }
@@ -260,9 +273,19 @@ public class Robot extends TimedRobot {
       fieldRelative = !fieldRelative; }
 
     // Get control values from the controller, apply speed limits and deadband
-    strafe = MathUtil.applyDeadband(controller.getLeftX() * OIConstants.kDriverSpeedLimit * elevator.elevatorspeedlimiter, OIConstants.kDriveDeadband);
-    forward = MathUtil.applyDeadband(-controller.getLeftY() * OIConstants.kDriverSpeedLimit * elevator.elevatorspeedlimiter, OIConstants.kDriveDeadband);
-    rotate = MathUtil.applyDeadband(controller.getRightX() * OIConstants.kDriverRotationLimit, OIConstants.kDriveDeadband);
+    strafe = MathUtil.applyDeadband(controller.getLeftX() * OIConstants.kDriverSpeedLimit * elevator.elevatorspeedlimiter * slowspeedlimit, OIConstants.kDriveDeadband);
+    forward = MathUtil.applyDeadband(-controller.getLeftY() * OIConstants.kDriverSpeedLimit * elevator.elevatorspeedlimiter * slowspeedlimit, OIConstants.kDriveDeadband);
+    rotate = MathUtil.applyDeadband(controller.getRightX() * OIConstants.kDriverRotationLimit * slowspeedlimit, OIConstants.kDriveDeadband);
+
+
+    // Press and hold left stick button for auto alignment
+    if (controller.getLeftStickButton()) {
+      vision.getDirectionsToTarget();
+      forward = vision.forward;
+      strafe = vision.strafe;
+      rotate = vision.rotate;
+    }
+
 
 
     // Send values to swerve drive    

@@ -1,15 +1,15 @@
 package frc.robot.subsystems;
 import frc.robot.Constants.AlgaeConstants;
 import frc.utils.Common;
-import edu.wpi.first.networktables.NetworkTableEntry;
+// import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
+// import edu.wpi.first.networktables.NetworkTable;
+// import edu.wpi.first.networktables.NetworkTableInstance;
 
 
 public class AlgaeSubsystem extends SubsystemBase{
@@ -19,7 +19,8 @@ public class AlgaeSubsystem extends SubsystemBase{
     private final SparkMax m_AlgaeWristSpark; 
     private RelativeEncoder encoder;
     public double currentposition;
-    private NetworkTableEntry NTAlgaePosition;
+    private double desiredposition;
+    // private NetworkTableEntry NTAlgaePosition;
     public boolean manualcontrol;
     private double previousp;
 
@@ -40,12 +41,14 @@ public class AlgaeSubsystem extends SubsystemBase{
         encoder = m_AlgaeWristSpark.getEncoder();
 
         // Initialize NetworkTable variables
-        NetworkTable Table = NetworkTableInstance.getDefault().getTable("Algae");
-        NTAlgaePosition = Table.getEntry("WristPosition"); }
+        // NetworkTable Table = NetworkTableInstance.getDefault().getTable("Algae");
+        // NTAlgaePosition = Table.getEntry("WristPosition"); 
+        }
 
     public void robotPeriodic() {
         currentposition = encoder.getPosition();
-        NTAlgaePosition.setDouble(currentposition);}
+        // NTAlgaePosition.setDouble(currentposition);
+        }
 
     public void teleopPeriodic(boolean AlgaeMode, int elevatorlevel) {
         if (!manualcontrol && AlgaeMode) { 
@@ -57,8 +60,9 @@ public class AlgaeSubsystem extends SubsystemBase{
                 goToPosition(AlgaeConstants.algaewristlevels[2]); // Shoot at Barge
             else
                 goToPosition(AlgaeConstants.algaewristlevels[1]);} // AlgaeIntake
-        else if (!manualcontrol && !AlgaeMode) {
-            goToPosition(AlgaeConstants.algaewristlevels[0]);}} // Stow
+        //else if (!AlgaeMode) {
+          //  goToPosition(AlgaeConstants.algaewristlevels[0]);} // Stow
+          } 
             
 
     public void intake() {
@@ -72,14 +76,20 @@ public class AlgaeSubsystem extends SubsystemBase{
 
     public void wristraise() {
         manualcontrol = true;
-        m_AlgaeWristSpark.set(-AlgaeConstants.kAlgaeWristSpeed);}
+        m_AlgaeWristSpark.set(-AlgaeConstants.kAlgaeWristSpeed);
+        desiredposition = currentposition;
+    }
 
     public void wriststop() {
-        manualcontrol = true;
-        m_AlgaeWristSpark.stopMotor();}
+        goToPosition(desiredposition);
+        //m_AlgaeWristSpark.stopMotor();
+    }
 
     public void wristlower() {         
-        m_AlgaeWristSpark.set(AlgaeConstants.kAlgaeWristSpeed);}
+        manualcontrol = true;
+        m_AlgaeWristSpark.set(AlgaeConstants.kAlgaeWristSpeed);
+        desiredposition = currentposition;
+    }
 
     public void fold() {
         goToPosition(AlgaeConstants.algaewristlevels[0]);}

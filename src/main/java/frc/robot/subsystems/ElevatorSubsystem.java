@@ -3,16 +3,12 @@ package frc.robot.subsystems;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.utils.Common;
-import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
+// import edu.wpi.first.networktables.NetworkTable;
+// import edu.wpi.first.networktables.NetworkTableEntry;
+// import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.smartdashboard.*;
-import java.util.Map;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -24,8 +20,8 @@ public class ElevatorSubsystem extends SubsystemBase{
     private final SparkFlex m_ElevatorLeftSpark; 
     private final SparkFlex m_ElevatorRightSpark;
     private RelativeEncoder encoder;
-    private NetworkTableEntry NTElevatorPosition;
-    private NetworkTableEntry NTElevatorLevel;
+    // private NetworkTableEntry NTElevatorPosition;
+    // private NetworkTableEntry NTElevatorLevel;
     
     
     private double currentspeed;
@@ -65,9 +61,9 @@ public class ElevatorSubsystem extends SubsystemBase{
         ElevatorLimitSwitch = new DigitalInput(0);
 
         // Initialize NetworkTable variables
-        NetworkTable ElevatorTable = NetworkTableInstance.getDefault().getTable("Elevator");
-        NTElevatorPosition = ElevatorTable.getEntry("Position");
-        NTElevatorLevel = ElevatorTable.getEntry("Level");
+        // NetworkTable ElevatorTable = NetworkTableInstance.getDefault().getTable("Elevator");
+        // NTElevatorPosition = ElevatorTable.getEntry("Position");
+        // NTElevatorLevel = ElevatorTable.getEntry("Level");
         
         wasLimitPressedLastTime = false;
         level = 0;
@@ -86,15 +82,15 @@ public class ElevatorSubsystem extends SubsystemBase{
 
 
     private double scaledSpeedToTop() {
-        return ElevatorConstants.kElevatorSpeed * Math.min(100,(ElevatorConstants.kHighestLevel - currentposition))/100; }
+        return ElevatorConstants.kElevatorSpeed * Math.min(150,(ElevatorConstants.kHighestLevel - currentposition))/150; }
     
     private double scaledSpeedToBottom() {
         return -ElevatorConstants.kElevatorSpeed * Math.min(100, currentposition)/100; }
 
     public void robotPeriodic() {
         currentposition = encoder.getPosition(); 
-        NTElevatorPosition.setDouble(currentposition);
-        NTElevatorLevel.setInteger(level);
+        // NTElevatorPosition.setDouble(currentposition);
+        // NTElevatorLevel.setInteger(level);
        
         // Reset encoder position to zero when limit switch is triggered (but don't do it over and over again)
         isLimitPressed = !ElevatorLimitSwitch.get();
@@ -102,7 +98,7 @@ public class ElevatorSubsystem extends SubsystemBase{
             encoder.setPosition(0.00);}
         wasLimitPressedLastTime = isLimitPressed;
         // Speed limiter used to limit swerve drive speed based on elevator height to prevent tipping with a higher center of gravity
-        elevatorspeedlimiter = (Constants.ElevatorConstants.kHighestLevel + 50 - currentposition) / ( Constants.ElevatorConstants.kHighestLevel + 50); }
+        elevatorspeedlimiter = (Constants.ElevatorConstants.kHighestLevel + 70 - currentposition) / ( Constants.ElevatorConstants.kHighestLevel + 70); }
 
     public void teleopPeriodic(boolean coralmode) {
         if (!manualcontrol) {
@@ -110,6 +106,10 @@ public class ElevatorSubsystem extends SubsystemBase{
             else goToAlgaeLevel(level);}
         else {
             previousp = 0;}}
+
+    public void autonomousPeriodic(){
+        goToCoralLevel(level);
+    }
 
     public void raise() {
         manualcontrol = true;
@@ -132,25 +132,25 @@ public class ElevatorSubsystem extends SubsystemBase{
 
     public void goToCoralLevel(int level) {
         level = Common.clamp(level, 0, 5);
-        goToPosition(ElevatorConstants.corallevels[level]);}
+        goToPosition(ElevatorConstants.corallevels[level]);
+        //goToPositionFaster(ElevatorConstants.corallevels[level]);
+    }
 
     public void goToAlgaeLevel(int level) {
         level = Common.clamp(level, 0, 5);
         goToPosition(ElevatorConstants.algaelevels[level]);}
 
     private void goToPosition(double targetposition) {
-        kPUp = 0.75;
-        kDUp = 0.05;
+        kPUp = 0.9;
+        kDUp = 0.1;
         kPDown = 0.3;
         kDDown = 0.1;
-
-
         currentposition = encoder.getPosition();
         double error = (targetposition - currentposition) / Math.max(Math.abs(targetposition), 1.0);  
         error = Common.clamp(error, -1.0, 1.0, 0.01);
         if (error > 0) {
             p = error * kPUp;
-            d = (p - previousp) * kDDown;}  
+            d = (p - previousp) * kDUp;}  
         else {
             p = error * kPDown;
             d = (p - previousp) * kDDown;}  
@@ -162,7 +162,43 @@ public class ElevatorSubsystem extends SubsystemBase{
             previousp = p;
             m_ElevatorLeftSpark.set(speed);}}
 
-    private void goToClosedLoopPosition(double targetposition){
+    private void goToPositionFaster(double targetposition){
+        currentposition = encoder.getPosition();
+        double distance = targetposition - currentposition;
+        double kP = 0.0;
+        double kD = 0.0;
+        double slowdowndistance = 20;
+
+        if (Math.abs(distance) > 0.5) {
+            if (Math.abs(distance) > slowdowndistance) {
+                speed = ElevatorConstants.kElevatorSpeed;}
+            else if (Math.abs(distance) <= slowdowndistance){
+                speed = ElevatorConstants.kElevatorSpeed * distance/slowdowndistance;}}
+        else    
+            speed = 0;
+        
+        if (distance > 0){  // Going up
+            kP = 0.8;
+            kD = 0.1;
+        }
+        else if (distance < 0) { // Going Down
+            kP = 0.3;
+            kD = 0.1;
+        }
+
+        p = speed * kP;
+        d = (p - previousp) * kD;
+        speed = p + d;
+
+        if (Math.abs(distance) < 0.5) {  // If close enough to target, stop, otherwise set speed
+            previousp = 0; 
+            m_ElevatorLeftSpark.stopMotor();}
+        else {
+            previousp = p;
+            m_ElevatorLeftSpark.set(speed);}
+        
 
     }
+
+    
 }

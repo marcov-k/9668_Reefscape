@@ -135,15 +135,13 @@ public final class Constants {
                 public static final int kElevatorLimitSwitchPort = 0;
 
                 // Speed
-                public static final double kElevatorSpeed = 0.9;
+                public static final double kElevatorSpeed = 1.0;
 
                 // Height of each level, defined in motor rotations  
-                // NEED TO TEST AND ADJUST THESE VALUES
-
                 // Coral Levels are 0-Stow, 1-CoralIntake, 2-L1, 3-L2, 4-L3, 5-L4
-                public static final double[] corallevels = {10, 25.2, 25.2, 46.7, 130, 245};
+                public static final double[] corallevels = {5, 24.2, 24.2, 46.7, 133, 245};
                 // Algae Levels are 0-Stow, 1-GroundIntake, 2-AlgaeProcessor, 3-L2, 4-L3, 5-Max
-                public static final double[] algaelevels = {10, 10, 15, 55, 160, 245};
+                public static final double[] algaelevels = {5, 10, 15, 55, 160, 245};
 
                 public static final double kLowestLevel = 0.0;
                 public static final double kHighestLevel = 245.0;
@@ -219,7 +217,7 @@ public final class Constants {
 
                 // Speed
                 public static final double kAlgaeSpeed = 0.5;
-                public static final double kAlgaeWristSpeed = 0.3;
+                public static final double kAlgaeWristSpeed = 0.5;
 
                 public static final SparkMaxConfig AlgaeLead = new SparkMaxConfig();
                 public static final SparkMaxConfig AlgaeFollow = new SparkMaxConfig();
@@ -253,8 +251,8 @@ public final class Constants {
         public static final class OIConstants {
                 public static final int kDriverControllerPort = 0;
                 public static final double kDriveDeadband = 0.02;
-                public static final double kDriverSpeedLimit = 0.50; // max forward speed
-                public static final double kDriverRotationLimit = 0.30; // max rotational speed
+                public static final double kDriverSpeedLimit = 0.90; // max forward speed
+                public static final double kDriverRotationLimit = 0.80; // max rotational speed
         }
 
         public static final class AutoConstants {
