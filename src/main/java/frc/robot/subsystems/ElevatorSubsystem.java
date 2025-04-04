@@ -141,12 +141,10 @@ public class ElevatorSubsystem extends SubsystemBase{
         goToPosition(ElevatorConstants.algaelevels[level]);}
 
     private void goToPosition(double targetposition) {
-        kPUp = 0.8;
+        kPUp = 0.9;
         kDUp = 0.1;
         kPDown = 0.3;
         kDDown = 0.1;
-
-
         currentposition = encoder.getPosition();
         double error = (targetposition - currentposition) / Math.max(Math.abs(targetposition), 1.0);  
         error = Common.clamp(error, -1.0, 1.0, 0.01);
@@ -174,8 +172,10 @@ public class ElevatorSubsystem extends SubsystemBase{
         if (Math.abs(distance) > 0.5) {
             if (Math.abs(distance) > slowdowndistance) {
                 speed = ElevatorConstants.kElevatorSpeed;}
-            else if (Math.abs(distance) < slowdowndistance){
+            else if (Math.abs(distance) <= slowdowndistance){
                 speed = ElevatorConstants.kElevatorSpeed * distance/slowdowndistance;}}
+        else    
+            speed = 0;
         
         if (distance > 0){  // Going up
             kP = 0.8;

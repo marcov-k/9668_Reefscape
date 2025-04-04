@@ -45,7 +45,7 @@ public class VisionSubsystem extends SubsystemBase{
         strafe= -(-4.27-targetYaw)*.02; 
         forward = Common.clamp(forward, -0.1, 0.1, 0.05); 
         strafe = Common.clamp(strafe, -0.1, 0.1, 0.01);        
-        rotate = -strafe;
+        rotate = 0;
         aligned = (forward == 0) && (rotate == 0);
       } 
     }
@@ -59,7 +59,7 @@ public class VisionSubsystem extends SubsystemBase{
             for (var target : result.getTargets()) {
                 tagid = target.getFiducialId();
                 // If the tag is a reef tag
-                if ((tagid > 6 && tagid < 11) || (tagid > 17 && tagid < 21)) {
+                if ((tagid >= 6 && tagid <= 11) || (tagid >= 17 && tagid <= 21)) {
                   // Find the closest reef tag (based on largest area of frame) and capture Yaw and Range
                   if (target.getArea() > largestArea) {
                     bestTarget = tagid;

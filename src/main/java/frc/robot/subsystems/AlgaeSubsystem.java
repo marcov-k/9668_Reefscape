@@ -8,8 +8,8 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
+// import edu.wpi.first.networktables.NetworkTable;
+// import edu.wpi.first.networktables.NetworkTableInstance;
 
 
 public class AlgaeSubsystem extends SubsystemBase{
@@ -19,6 +19,7 @@ public class AlgaeSubsystem extends SubsystemBase{
     private final SparkMax m_AlgaeWristSpark; 
     private RelativeEncoder encoder;
     public double currentposition;
+    private double desiredposition;
     // private NetworkTableEntry NTAlgaePosition;
     public boolean manualcontrol;
     private double previousp;
@@ -75,14 +76,20 @@ public class AlgaeSubsystem extends SubsystemBase{
 
     public void wristraise() {
         manualcontrol = true;
-        m_AlgaeWristSpark.set(-AlgaeConstants.kAlgaeWristSpeed);}
+        m_AlgaeWristSpark.set(-AlgaeConstants.kAlgaeWristSpeed);
+        desiredposition = currentposition;
+    }
 
     public void wriststop() {
-        manualcontrol = true;
-        m_AlgaeWristSpark.stopMotor();}
+        goToPosition(desiredposition);
+        //m_AlgaeWristSpark.stopMotor();
+    }
 
     public void wristlower() {         
-        m_AlgaeWristSpark.set(AlgaeConstants.kAlgaeWristSpeed);}
+        manualcontrol = true;
+        m_AlgaeWristSpark.set(AlgaeConstants.kAlgaeWristSpeed);
+        desiredposition = currentposition;
+    }
 
     public void fold() {
         goToPosition(AlgaeConstants.algaewristlevels[0]);}

@@ -62,6 +62,8 @@ public class Robot extends TimedRobot {
   double targetYaw;
   double targetPitch;
   boolean aligned;
+  boolean slowmode;
+  double slowspeedlimit;
 
   // Auto
   boolean shootingAlgae;
@@ -163,6 +165,8 @@ public class Robot extends TimedRobot {
     elevator.manualcontrol = true;
     coral.manualcontrol = true;
     algae.manualcontrol = true;
+    slowmode = false;
+    slowspeedlimit = 1.0;
   }
 
   /* TELEOP PERIODIC */
@@ -171,9 +175,10 @@ public class Robot extends TimedRobot {
     
     // DPad Left - Select Coral Mode 
     if (dPad.getDPadLeftPressed()) {
-      CoralMode = true;      
-      coral.unfold(elevator.level);
-      // algae.fold();
+      CoralMode = true;  
+      coral.intakepose();
+      elevator.goToCoralLevel(1);
+      elevator.level = 1;
       elevator.manualcontrol = false;
       algae.manualcontrol = false;
       coral.manualcontrol = false;
@@ -181,8 +186,6 @@ public class Robot extends TimedRobot {
     // DPad Right - Select Algae Mode 
     else if (dPad.getDPadRightPressed()) {
       CoralMode = false; 
-      coral.fold();
-      //algae.unfold();
       elevator.manualcontrol = false;
       algae.manualcontrol = false;
       coral.manualcontrol = false;
@@ -205,7 +208,7 @@ public class Robot extends TimedRobot {
       coral.manualcontrol = false;
     }
 
-    // Y Button - manual control elevator Up and Down
+    // Y & A Buttons - manual control elevator Up and Down
     if (controller.getYButton()) {         
       elevator.raise();} 
     else if (controller.getAButton()) { 
@@ -214,24 +217,29 @@ public class Robot extends TimedRobot {
       elevator.stop();}
 
     
-    // Bumpers - manually control Algae or Coral Wrist
+    // Bumpers - manually control Algae Wrist
     if (controller.getRightBumperButton()) {
-      if (CoralMode){
-        coral.wristraise(); } 
-      else {
-        algae.wristraise(); } } 
+        algae.wristraise(); 
+        algae.manualcontrol = true;}  
     else if (controller.getLeftBumperButton()) {
-      if (CoralMode){        
-        coral.wristlower(); } 
-      else {
-        algae.wristlower(); }} 
+        algae.wristlower();
+        algae.manualcontrol = true; } 
+    else {      
+      if (algae.manualcontrol) {
+        algae.wriststop(); }}     
+        
+    // X and B - manually control Coral Wrist
+    if (controller.getXButton()) {
+        coral.wristlower(); 
+        coral.manualcontrol = true;}
+    else if (controller.getBButton()) {      
+        coral.wristraise(); 
+        coral.manualcontrol = true;} 
     else {
       if (coral.manualcontrol) {
-        coral.wriststop(); }      
-      if (algae.manualcontrol) {
-        algae.wriststop(); }}      
+        coral.wriststop(); }}        
 
-    // Triggers - control intake and outtake
+    // Triggers - control intake and outtake based on Mode
     if (controller.getRightTriggerAxis() > 0.05) {  
       if (CoralMode) {
         coral.outtake(); } 
@@ -246,6 +254,15 @@ public class Robot extends TimedRobot {
       algae.stop();
       coral.stop(); }
     
+    // Press and release Right Stick Button to toggle slow mode
+    if (controller.getRightStickButtonPressed()){
+      slowmode = !slowmode;
+      if (slowmode) {
+        slowspeedlimit = 0.5;}
+      else {
+        slowspeedlimit = 1.0; }
+    }
+
     // Back button - Zero Heading
     if (controller.getBackButtonPressed()) {
       swerveDrive.zeroHeading(); }
@@ -256,17 +273,20 @@ public class Robot extends TimedRobot {
       fieldRelative = !fieldRelative; }
 
     // Get control values from the controller, apply speed limits and deadband
-    strafe = MathUtil.applyDeadband(controller.getLeftX() * OIConstants.kDriverSpeedLimit * elevator.elevatorspeedlimiter, OIConstants.kDriveDeadband);
-    forward = MathUtil.applyDeadband(-controller.getLeftY() * OIConstants.kDriverSpeedLimit * elevator.elevatorspeedlimiter, OIConstants.kDriveDeadband);
-    rotate = MathUtil.applyDeadband(controller.getRightX() * OIConstants.kDriverRotationLimit, OIConstants.kDriveDeadband);
+    strafe = MathUtil.applyDeadband(controller.getLeftX() * OIConstants.kDriverSpeedLimit * elevator.elevatorspeedlimiter * slowspeedlimit, OIConstants.kDriveDeadband);
+    forward = MathUtil.applyDeadband(-controller.getLeftY() * OIConstants.kDriverSpeedLimit * elevator.elevatorspeedlimiter * slowspeedlimit, OIConstants.kDriveDeadband);
+    rotate = MathUtil.applyDeadband(controller.getRightX() * OIConstants.kDriverRotationLimit * slowspeedlimit, OIConstants.kDriveDeadband);
 
-    // While pressing X Button - Vision auto to AprilTag
-    if (controller.getXButton()) {
+
+    // Press and hold left stick button for auto alignment
+    if (controller.getLeftStickButton()) {
       vision.getDirectionsToTarget();
       forward = vision.forward;
       strafe = vision.strafe;
       rotate = vision.rotate;
     }
+
+
 
     // Send values to swerve drive    
     swerveDrive.drive(forward, strafe, rotate, fieldRelative, rateLimit);
