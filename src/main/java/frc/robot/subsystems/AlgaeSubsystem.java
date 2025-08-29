@@ -36,7 +36,7 @@ public class AlgaeSubsystem extends SubsystemBase{
     private boolean pausing;
     private boolean shooting;
     private long targetTime;
-    private final DigitalInput algaeSensor;
+    private DigitalInput algaeSensor;
 
     public AlgaeSubsystem(){
 
