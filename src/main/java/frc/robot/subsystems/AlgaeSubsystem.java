@@ -88,7 +88,7 @@ public class AlgaeSubsystem extends SubsystemBase{
         }
         else
         {
-            manualcontrol = true;
+            manualcontrol = false;
             resetDemo();
             doingDemo = true;
             targetTime = System.currentTimeMillis() + demoCutoffTime;
