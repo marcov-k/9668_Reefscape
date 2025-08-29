@@ -1,8 +1,12 @@
 package frc.robot.subsystems;
 import frc.robot.Constants.AlgaeConstants;
 import frc.utils.Common;
+import edu.wpi.first.wpilibj.DigitalInput;
 // import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import javax.lang.model.util.ElementScanner14;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -16,13 +20,23 @@ public class AlgaeSubsystem extends SubsystemBase{
 
     private final SparkMax m_AlgaeLeftSpark; 
     private final SparkMax m_AlgaeRightSpark;
-    private final SparkMax m_AlgaeWristSpark; 
+    private final SparkMax m_AlgaeWristSpark;
+    private final long demoCutoffTime;
+    private final long demoPauseTime;
+    private final long shootTime;
+    private final DigitalInput algaeSensor = new DigitalInput(0);
     private RelativeEncoder encoder;
     public double currentposition;
     private double desiredposition;
     // private NetworkTableEntry NTAlgaePosition;
     public boolean manualcontrol;
     private double previousp;
+    private long currentTime;
+    public boolean doingDemo;
+    private boolean pickingUp;
+    private boolean pausing;
+    private boolean shooting;
+    private long targetTime;
 
     public AlgaeSubsystem(){
 
@@ -40,6 +54,11 @@ public class AlgaeSubsystem extends SubsystemBase{
         // Algae Encoder
         encoder = m_AlgaeWristSpark.getEncoder();
 
+        // Demo Functionality
+        demoCutoffTime = 3000;
+        demoPauseTime = 4000;
+        shootTime = 1000;
+
         // Initialize NetworkTable variables
         // NetworkTable Table = NetworkTableInstance.getDefault().getTable("Algae");
         // NTAlgaePosition = Table.getEntry("WristPosition"); 
@@ -50,20 +69,101 @@ public class AlgaeSubsystem extends SubsystemBase{
         // NTAlgaePosition.setDouble(currentposition);
         }
 
-    public void teleopPeriodic(boolean AlgaeMode, int elevatorlevel) {
-        if (!manualcontrol && AlgaeMode) { 
-            // Algae Mode Elevator Levels are 0-Stow, 1-GroundIntake, 2-AlgaeProcessor, 3-L2, 4-L3, 5-Max
-            // Algae Wrist Levels are 0-Stowed, 1-Unfolded, 2-Aim for Barge
-            if (elevatorlevel == 0)
-                goToPosition(AlgaeConstants.algaewristlevels[0]); // Stow
-            else if (elevatorlevel == 5)
-                goToPosition(AlgaeConstants.algaewristlevels[2]); // Shoot at Barge
-            else
-                goToPosition(AlgaeConstants.algaewristlevels[1]);} // AlgaeIntake
-        //else if (!AlgaeMode) {
-          //  goToPosition(AlgaeConstants.algaewristlevels[0]);} // Stow
-          } 
-            
+    public void teleopPeriodic() {
+        if (!manualcontrol) 
+        { 
+            if (doingDemo)
+            {
+                handleBallDemo();
+            }
+        }
+    } 
+
+    public void ballDemo()
+    {
+        if (doingDemo)
+        {
+            stop();
+            resetDemo();
+        }
+        else
+        {
+            resetDemo();
+            doingDemo = true;
+            targetTime = System.currentTimeMillis() + demoCutoffTime;
+            pickingUp = true;
+        }
+    }
+
+    public void handleBallDemo()
+    {
+        if (pickingUp)
+        {
+            pickUpBall();
+        }
+        else if (pausing)
+        {
+            demoPause();
+        }
+        else if (shooting)
+        {
+            shootBall();
+        }
+    }
+
+    public void pickUpBall()
+    {
+        currentTime = System.currentTimeMillis();
+        if (algaeSensor.get())
+        {
+            pickingUp = false;
+            targetTime = currentTime + demoPauseTime;
+            pausing = true;
+            stop();
+        }
+        else if (currentTime < targetTime)
+        {
+            intake();
+        }
+        else
+        {
+            resetDemo();
+            stop();
+        }
+    }
+
+    public void demoPause()
+    {
+        currentTime = System.currentTimeMillis();
+        if (currentTime >= targetTime)
+        {
+            pausing = false;
+            targetTime = currentTime + shootTime;
+            shooting = true;
+        }
+    }
+
+    public void shootBall()
+    {
+        currentTime = System.currentTimeMillis();
+        if (currentTime < targetTime)
+        {
+            outtake();
+        }
+        else
+        {
+            stop();
+            resetDemo();
+        }
+    }
+
+    public void resetDemo()
+    {
+        pickingUp = false;
+        pausing = false;
+        shooting = false;
+        doingDemo = false;
+    }
 
     public void intake() {
         m_AlgaeLeftSpark.set(AlgaeConstants.kAlgaeSpeed);}
@@ -98,7 +198,14 @@ public class AlgaeSubsystem extends SubsystemBase{
         goToPosition(AlgaeConstants.algaewristlevels[1]);}
 
     public void init() {
-        encoder.setPosition(0);}
+        encoder.setPosition(0);
+        currentTime = 0;
+        targetTime = 0;
+        doingDemo = false;
+        pickingUp = false;
+        pausing = false;
+        shooting = false;
+    }
     
     private void goToPosition(double targetposition) {
         currentposition = encoder.getPosition();
