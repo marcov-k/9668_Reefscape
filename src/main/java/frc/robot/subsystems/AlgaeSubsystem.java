@@ -36,7 +36,7 @@ public class AlgaeSubsystem extends SubsystemBase{
     private boolean pausing;
     private boolean shooting;
     private long targetTime;
-    private DigitalInput algaeSensor;
+    private final DigitalInput algaeSensor;
 
     public AlgaeSubsystem(){
 
@@ -58,6 +58,7 @@ public class AlgaeSubsystem extends SubsystemBase{
         demoCutoffTime = 3000;
         demoPauseTime = 4000;
         shootTime = 1000;
+        algaeSensor = new DigitalInput(0);
 
         // Initialize NetworkTable variables
         // NetworkTable Table = NetworkTableInstance.getDefault().getTable("Algae");
@@ -79,9 +80,8 @@ public class AlgaeSubsystem extends SubsystemBase{
         }
     } 
 
-    public void ballDemo(DigitalInput newAlgaeSensor)
+    public void ballDemo()
     {
-        algaeSensor = newAlgaeSensor;
         if (doingDemo && !manualcontrol)
         {
             stop();

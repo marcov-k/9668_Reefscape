@@ -49,7 +49,6 @@ public class Robot extends TimedRobot {
   // Controller
   private final XboxController controller = new XboxController(OIConstants.kDriverControllerPort);
   DPadHelper dPad = new DPadHelper(controller);
-  public final DigitalInput algaeSensor = new DigitalInput(0);
 
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
@@ -111,7 +110,7 @@ public class Robot extends TimedRobot {
      
     if (controller.getBButtonPressed())
     {
-        algae.ballDemo(algaeSensor);
+        algae.ballDemo();
     }
 
     // Triggers - control intake and outtake based on Mode
