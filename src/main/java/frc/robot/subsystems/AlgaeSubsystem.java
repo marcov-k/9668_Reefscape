@@ -81,13 +81,14 @@ public class AlgaeSubsystem extends SubsystemBase{
 
     public void ballDemo()
     {
-        if (doingDemo)
+        if (doingDemo && !manualcontrol)
         {
             stop();
             resetDemo();
         }
         else
         {
+            manualcontrol = true;
             resetDemo();
             doingDemo = true;
             targetTime = System.currentTimeMillis() + demoCutoffTime;

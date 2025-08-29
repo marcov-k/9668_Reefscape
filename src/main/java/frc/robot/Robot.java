@@ -112,7 +112,6 @@ public class Robot extends TimedRobot {
      
     if (controller.getBButtonPressed())
     {
-        algae.manualcontrol = false;
         algae.ballDemo();
     }
 
