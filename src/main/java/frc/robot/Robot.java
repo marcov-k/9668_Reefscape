@@ -46,12 +46,10 @@ public class Robot extends TimedRobot {
   private final CoralSubsystem coral = new CoralSubsystem();
   private final AlgaeSubsystem algae = new AlgaeSubsystem();
 
-  // Auto
-  boolean shootingAlgae;
-
   // Controller
   private final XboxController controller = new XboxController(OIConstants.kDriverControllerPort);
   DPadHelper dPad = new DPadHelper(controller);
+  public final DigitalInput algaeSensor = new DigitalInput(0);
 
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
@@ -79,6 +77,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {    
     elevator.init();
+    algae.init();
     fieldRelative = false;
     rateLimit = false;
     elevator.manualcontrol = true;
@@ -112,7 +111,7 @@ public class Robot extends TimedRobot {
      
     if (controller.getBButtonPressed())
     {
-        algae.ballDemo();
+        algae.ballDemo(algaeSensor);
     }
 
     // Triggers - control intake and outtake based on Mode

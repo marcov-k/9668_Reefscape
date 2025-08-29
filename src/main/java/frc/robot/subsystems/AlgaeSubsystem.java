@@ -24,7 +24,6 @@ public class AlgaeSubsystem extends SubsystemBase{
     private final long demoCutoffTime;
     private final long demoPauseTime;
     private final long shootTime;
-    private final DigitalInput algaeSensor = new DigitalInput(0);
     private RelativeEncoder encoder;
     public double currentposition;
     private double desiredposition;
@@ -37,6 +36,7 @@ public class AlgaeSubsystem extends SubsystemBase{
     private boolean pausing;
     private boolean shooting;
     private long targetTime;
+    private DigitalInput algaeSensor;
 
     public AlgaeSubsystem(){
 
@@ -79,8 +79,9 @@ public class AlgaeSubsystem extends SubsystemBase{
         }
     } 
 
-    public void ballDemo()
+    public void ballDemo(DigitalInput newAlgaeSensor)
     {
+        algaeSensor = newAlgaeSensor;
         if (doingDemo && !manualcontrol)
         {
             stop();
